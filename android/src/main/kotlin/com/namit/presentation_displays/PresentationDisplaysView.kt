@@ -1,9 +1,7 @@
 package com.namit.presentation_displays
 
-import android.app.Presentation
 import android.hardware.display.DisplayManager
 import android.util.Log
-import android.util.SparseArray
 import android.view.Display
 import android.view.View
 import com.google.gson.Gson
@@ -15,7 +13,6 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry
 import io.flutter.plugin.platform.PlatformView
 import org.json.JSONObject
-
 
 class PresentationDisplaysView internal
 constructor(
@@ -57,17 +54,19 @@ constructor(
                     Log.i(TAG, "Channel: method: ${call.method} | displayId: ${obj.getInt("displayId")} | routerName: ${obj.getString("routerName")}")
 
                     val displayId: Int = obj.getInt("displayId")
-                    val tag:String = obj.getString("routerName")
+                    val tag: String = obj.getString("routerName")
                     val display = displayManager.getDisplay(displayId)
                     val flutterEngine = createFlutterEngine(tag)
 
-                    flutterEngineChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "${TAG}_engine")
+                    if (display != null) {
+                        flutterEngine?.let {
+                            flutterEngineChannel = MethodChannel(it.dartExecutor.binaryMessenger, "${TAG}_engine")
+                            val presentation = PresentationDisplay(registrar.activity(), tag, display)
+                            presentation.show()
+                            result.success(true)
+                        } ?: result.error("404", "Can't find FlutterEngine", null)
 
-                    if(display!=null) {
-                        val presentation = PresentationDisplay(registrar.activity(), viewId, display)
-                        presentation.show()
-                        result.success(true)
-                    }else{
+                    } else {
                         result.error("404", "Can't find display with displayId is $displayId", null)
                     }
 
@@ -97,15 +96,17 @@ constructor(
         }
     }
 
-    private fun createFlutterEngine(tag: String): FlutterEngine {
-        val flutterEngine = FlutterEngine(registrar.context())
-        flutterEngine.navigationChannel.setInitialRoute(tag)
-        flutterEngine.dartExecutor.executeDartEntrypoint(
-                DartExecutor.DartEntrypoint.createDefault()
-        )
-        flutterEngine.lifecycleChannel.appIsResumed()
-        // Cache the FlutterEngine to be used by FlutterActivity.
-        FlutterEngineCache.getInstance().put(tag, flutterEngine)
-        return flutterEngine
+    private fun createFlutterEngine(tag: String): FlutterEngine? {
+        if (FlutterEngineCache.getInstance().get(tag) == null) {
+            val flutterEngine = FlutterEngine(registrar.context())
+            flutterEngine.navigationChannel.setInitialRoute(tag)
+            flutterEngine.dartExecutor.executeDartEntrypoint(
+                    DartExecutor.DartEntrypoint.createDefault()
+            )
+            flutterEngine.lifecycleChannel.appIsResumed()
+            // Cache the FlutterEngine to be used by FlutterActivity.
+            FlutterEngineCache.getInstance().put(tag, flutterEngine)
+        }
+        return FlutterEngineCache.getInstance().get(tag)
     }
 }

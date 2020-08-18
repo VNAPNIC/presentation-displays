@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:presentation_displays/PresentationDisplays.dart';
 import 'package:presentation_displays/display.dart';
 
 const _listDisplay = "listDisplay";
@@ -12,21 +13,21 @@ const _transferDataToPresentation = "transferDataToPresentation";
 const String DISPLAY_CATEGORY_PRESENTATION =
     "android.hardware.display.category.PRESENTATION";
 
-class DisplayController extends ChangeNotifier {
-  final _receiverChannel = "presentation_displays_plugin_0_engine";
-  final _senderChannel = "presentation_displays_plugin";
+class DisplayController {
+
+  final _displayChannel = "presentation_displays_plugin";
 
   var _viewId = 0;
-  MethodChannel _senderMethodChannel;
-  MethodChannel _receiverMethodChannel;
+  MethodChannel _displayMethodChannel;
+
 
   /// Callback to invoke after the platform view has been created.
   /// May be null.
   _onPlatformViewCreated(int viewId) {
-    if (_viewId != viewId || _senderMethodChannel == null) {
-      debugPrint('--------->: channel ${_senderChannel}_$viewId');
-      _senderMethodChannel = MethodChannel("${_senderChannel}_$viewId");
-      _senderMethodChannel.setMethodCallHandler((call) async {
+    if (_viewId != viewId || _displayMethodChannel == null) {
+      debugPrint('--------->: channel ${_displayChannel}_$viewId');
+      _displayMethodChannel = MethodChannel("${_displayChannel}_$viewId");
+      _displayMethodChannel.setMethodCallHandler((call) async {
         debugPrint('--------->: method: ${call.method} | arguments: ${call.arguments}');
       });
     }
@@ -48,7 +49,7 @@ class DisplayController extends ChangeNotifier {
   /// @see [DISPLAY_CATEGORY_PRESENTATION]
   FutureOr<List<Display>> getDisplays({String category}) async {
     List<dynamic> origins = await jsonDecode(
-            await _senderMethodChannel?.invokeMethod(_listDisplay, category)) ??
+            await _displayMethodChannel?.invokeMethod(_listDisplay, category)) ??
         [];
     List<Display> displays = [];
     origins.forEach((element) {
@@ -103,8 +104,8 @@ class DisplayController extends ChangeNotifier {
   /// </P>
   ///
   /// @return [Future<bool>] about the status has been display or not
-  Future<bool> showPresentation(int displayId, String routerName) {
-    return _senderMethodChannel?.invokeMethod(_showPresentation, "{"
+  Future<bool> showPresentation({@required int displayId,@required String routerName}) {
+    return _displayMethodChannel?.invokeMethod(_showPresentation, "{"
         "\"displayId\": $displayId,"
         "\"routerName\": \"$routerName\""
         "}");
@@ -118,45 +119,30 @@ class DisplayController extends ChangeNotifier {
   ///
   /// @return [Future<bool>] the value to determine whether or not the data has been transferred successfully
   Future<bool> transferDataToPresentation(dynamic arguments) {
-    return _senderMethodChannel?.invokeMethod(
+    return _displayMethodChannel?.invokeMethod(
         _transferDataToPresentation, arguments);
-  }
-
-  /// Only use a subscription to listen within the presentation display
-  /// <p>
-  /// Sets a callback for receiving method calls on this [addListenerForPresentation].
-  /// The given callback will replace the currently registered callback for this
-  /// [addListenerForPresentation], if any.
-  ///
-  /// If the future returned by the handler completes with a result
-  /// </p>
-  addListenerForPresentation(Function function) {
-    _receiverMethodChannel = MethodChannel(_receiverChannel);
-    _receiverMethodChannel.setMethodCallHandler((call) async {
-      debugPrint('--------->: method: ${call.method} | arguments: ${call.arguments}');
-      function(call.arguments);
-    });
   }
 }
 
-/// Please wrap this theme on your Widget, it will provide you with the [DisplayController] method for you to work with PresentationDisplay.
-class PresentationDisplays extends StatefulWidget {
-  PresentationDisplays({@required this.controller,this.child});
+/// Please wrap this theme on your Widget, it will provide you with the [DisplayController] method for you to work with [PresentationDisplay].
+class DisplaysManager extends StatefulWidget {
+
+  DisplaysManager({@required this.controller,this.child});
 
   final DisplayController controller;
   final Widget child;
 
   @override
-  _PresentationDisplaysState createState() => _PresentationDisplaysState();
+  _DisplaysManagerState createState() => _DisplaysManagerState();
 }
 
-class _PresentationDisplaysState extends State<PresentationDisplays> {
+class _DisplaysManagerState extends State<DisplaysManager> {
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
         AndroidView(
-          viewType: widget.controller._senderChannel,
+          viewType: widget.controller._displayChannel,
           onPlatformViewCreated: (viewId) =>
               widget.controller._onPlatformViewCreated(viewId),
         ),

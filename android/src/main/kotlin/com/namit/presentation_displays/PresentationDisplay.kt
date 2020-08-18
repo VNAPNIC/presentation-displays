@@ -10,7 +10,7 @@ import android.widget.FrameLayout
 import io.flutter.embedding.android.FlutterView
 import io.flutter.embedding.engine.FlutterEngineCache
 
-class PresentationDisplay(context: Context, private val viewId: Int, display: Display) : Presentation(context, display) {
+class PresentationDisplay(context: Context, private val tag: String, display: Display) : Presentation(context, display) {
 
     /**
      * @hide
@@ -26,11 +26,11 @@ class PresentationDisplay(context: Context, private val viewId: Int, display: Di
 
         val flutterView = FlutterView(context)
         flContainer.addView(flutterView, params)
-        val flutterEngine = FlutterEngineCache.getInstance().get("${PresentationDisplaysPlugin.viewTypeId}_$viewId")
+        val flutterEngine = FlutterEngineCache.getInstance().get(tag)
         if (flutterEngine != null) {
             flutterView.attachToFlutterEngine(flutterEngine)
         } else {
-            Log.e("PresentationDisplay", "Can't find the FlutterEngine with cache name ${PresentationDisplaysPlugin.viewTypeId}_$viewId")
+            Log.e("PresentationDisplay", "Can't find the FlutterEngine with cache name $tag")
         }
     }
 }
