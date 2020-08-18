@@ -22,7 +22,7 @@ class PresentationDisplay extends StatefulWidget {
 }
 
 class _PresentationDisplayState extends State<PresentationDisplay> {
-  final _presentationChannel = "presentation_displays_plugin_0_engine";
+  final _presentationChannel = "presentation_displays_plugin_engine";
   MethodChannel _presentationMethodChannel;
 
   @override

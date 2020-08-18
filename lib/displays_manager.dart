@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:presentation_displays/PresentationDisplays.dart';
 import 'package:presentation_displays/display.dart';
 
 const _listDisplay = "listDisplay";
@@ -13,24 +12,14 @@ const _transferDataToPresentation = "transferDataToPresentation";
 const String DISPLAY_CATEGORY_PRESENTATION =
     "android.hardware.display.category.PRESENTATION";
 
-class DisplayController {
+/// it will provide you with the method for you to work with [PresentationDisplay].
+class DisplayManager {
 
   final _displayChannel = "presentation_displays_plugin";
-
-  var _viewId = 0;
   MethodChannel _displayMethodChannel;
 
-
-  /// Callback to invoke after the platform view has been created.
-  /// May be null.
-  _onPlatformViewCreated(int viewId) {
-    if (_viewId != viewId || _displayMethodChannel == null) {
-      debugPrint('--------->: channel ${_displayChannel}_$viewId');
-      _displayMethodChannel = MethodChannel("${_displayChannel}_$viewId");
-      _displayMethodChannel.setMethodCallHandler((call) async {
-        debugPrint('--------->: method: ${call.method} | arguments: ${call.arguments}');
-      });
-    }
+  DisplayManager(){
+    _displayMethodChannel = MethodChannel(_displayChannel);
   }
 
   /// Gets all currently valid logical displays of the specified category.
@@ -121,33 +110,5 @@ class DisplayController {
   Future<bool> transferDataToPresentation(dynamic arguments) {
     return _displayMethodChannel?.invokeMethod(
         _transferDataToPresentation, arguments);
-  }
-}
-
-/// Please wrap this theme on your Widget, it will provide you with the [DisplayController] method for you to work with [PresentationDisplay].
-class DisplaysManager extends StatefulWidget {
-
-  DisplaysManager({@required this.controller,this.child});
-
-  final DisplayController controller;
-  final Widget child;
-
-  @override
-  _DisplaysManagerState createState() => _DisplaysManagerState();
-}
-
-class _DisplaysManagerState extends State<DisplaysManager> {
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        AndroidView(
-          viewType: widget.controller._displayChannel,
-          onPlatformViewCreated: (viewId) =>
-              widget.controller._onPlatformViewCreated(viewId),
-        ),
-        widget.child
-      ],
-    );
   }
 }

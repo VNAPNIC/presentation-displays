@@ -7,9 +7,9 @@ import 'package:presentation_displays/display.dart';
 Route<dynamic> generateRoute(RouteSettings settings) {
   switch (settings.name) {
     case '/':
-      return MaterialPageRoute(builder: (_) => DisplayManager());
+      return MaterialPageRoute(builder: (_) => DisplayManagerScreen());
     case 'presentation':
-      return MaterialPageRoute(builder: (_) => Presentation());
+      return MaterialPageRoute(builder: (_) => PresentationScreen());
     default:
       return MaterialPageRoute(
           builder: (_) =>
@@ -52,59 +52,55 @@ class Button extends StatelessWidget {
   }
 }
 
-/// Displays manager
-
-class DisplayManager extends StatefulWidget {
+/// Main Screen
+class DisplayManagerScreen extends StatefulWidget {
   @override
-  _DisplayManagerState createState() => _DisplayManagerState();
+  _DisplayManagerScreenState createState() => _DisplayManagerScreenState();
 }
 
-class _DisplayManagerState extends State<DisplayManager> {
-  DisplayController controller = DisplayController();
+class _DisplayManagerScreenState extends State<DisplayManagerScreen> {
+  DisplayManager displayManager = DisplayManager();
   List<Display> displays = [];
 
   @override
   Widget build(BuildContext context) {
-    return DisplaysManager(
-      controller: controller,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Plugin example app'),
-        ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Wrap(
-                alignment: WrapAlignment.center,
-                children: <Widget>[
-                  Button("Get Displays", () async {
-                    final values = await controller.getDisplays();
-                    print(values);
-                    displays.clear();
-                    displays.addAll(values);
-                    print(displays);
-                  }),
-                  Button("ShowPresentation", () async {
-                    final value = await controller.showPresentation(displayId: displays[1].displayId,routerName:"presentation");
-                  }),
-                  Button("NameByDisplayId", () async {
-                    final value = await controller
-                        .getNameByDisplayId(displays[1].displayId);
-                    print(value);
-                  }),
-                  Button("NameByIndex", () async {
-                    final value = await controller.getNameByIndex(1);
-                    print(value);
-                  }),
-                  Button("TransferData", () async {
-                    final value = await controller.transferDataToPresentation("test transfer data");
-                    print(value);
-                  })
-                ],
-              ),
-            ],
-          ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Plugin example app'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Wrap(
+              alignment: WrapAlignment.center,
+              children: <Widget>[
+                Button("Get Displays", () async {
+                  final values = await displayManager.getDisplays();
+                  print(values);
+                  displays.clear();
+                  displays.addAll(values);
+                  print(displays);
+                }),
+                Button("ShowPresentation", () async {
+                  final value = await displayManager.showPresentation(displayId: displays[1].displayId,routerName:"presentation");
+                }),
+                Button("NameByDisplayId", () async {
+                  final value = await displayManager
+                      .getNameByDisplayId(displays[1].displayId);
+                  print(value);
+                }),
+                Button("NameByIndex", () async {
+                  final value = await displayManager.getNameByIndex(1);
+                  print(value);
+                }),
+                Button("TransferData", () async {
+                  final value = await displayManager.transferDataToPresentation("test transfer data");
+                  print(value);
+                })
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -112,13 +108,13 @@ class _DisplayManagerState extends State<DisplayManager> {
 }
 
 
-/// Presentation
-class Presentation extends StatefulWidget {
+/// UI of Presentation
+class PresentationScreen extends StatefulWidget {
   @override
-  _PresentationState createState() => _PresentationState();
+  _PresentationScreenState createState() => _PresentationScreenState();
 }
 
-class _PresentationState extends State<Presentation> {
+class _PresentationScreenState extends State<PresentationScreen> {
   String value = "init";
   @override
   Widget build(BuildContext context) {
