@@ -1,9 +1,7 @@
 package com.namit.presentation_displays
 
-import android.annotation.SuppressLint
 import android.app.Presentation
 import android.hardware.display.DisplayManager
-import android.hardware.display.DisplayManager.DISPLAY_CATEGORY_PRESENTATION
 import android.util.Log
 import android.util.SparseArray
 import android.view.Display
@@ -16,7 +14,8 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry
 import io.flutter.plugin.platform.PlatformView
-import java.lang.Exception
+import org.json.JSONObject
+
 
 class PresentationDisplaysView internal
 constructor(
@@ -27,66 +26,86 @@ constructor(
         PlatformView, MethodChannel.MethodCallHandler {
 
     private val TAG = "${PresentationDisplaysPlugin.viewTypeId}_$viewId"
-
-    private var mActivePresentations = SparseArray<Presentation>()
-    private var flutterEngineChannel: MethodChannel
+    private var flutterEngineChannel: MethodChannel? = null
 
     init {
         methodChannel.setMethodCallHandler(this)
-
-        val flutterEngine = FlutterEngine(registrar.context())
-        flutterEngine.navigationChannel.setInitialRoute(TAG)
-        flutterEngine.dartExecutor.executeDartEntrypoint(
-                DartExecutor.DartEntrypoint.createDefault()
-        )
-        flutterEngine.lifecycleChannel.appIsResumed()
-        // Cache the FlutterEngine to be used by FlutterActivity.
-        FlutterEngineCache.getInstance().put(TAG, flutterEngine)
-
-        flutterEngineChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "${TAG}_engine")
     }
 
+    /**
+     * @hide
+     */
     override fun getView(): View {
         return View(registrar.context())
     }
 
+    /**
+     * @hide
+     */
     override fun dispose() {
     }
 
-    @SuppressLint("NewApi")
+    /**
+     * @hide
+     */
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         Log.i(TAG, "Channel: method: ${call.method} | arguments: ${call.arguments}")
         when (call.method) {
-            "connect" -> {
-                if (displayManager.displays.size > 1) {
-                    val display = displayManager.displays[1]
-                    val presentation = PresentationDisplay(registrar.activity(), viewId, display)
-                    presentation.show()
-                    mActivePresentations.put(display.displayId, presentation)
-                    result.success("Connected")
-                } else {
-                    result.error("4", "Error", "4")
+            "showPresentation" -> {
+                try {
+                    val obj = JSONObject(call.arguments as String)
+                    Log.i(TAG, "Channel: method: ${call.method} | displayId: ${obj.getInt("displayId")} | routerName: ${obj.getString("routerName")}")
+
+                    val displayId: Int = obj.getInt("displayId")
+                    val tag:String = obj.getString("routerName")
+                    val display = displayManager.getDisplay(displayId)
+                    val flutterEngine = createFlutterEngine(tag)
+
+                    flutterEngineChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "${TAG}_engine")
+
+                    if(display!=null) {
+                        val presentation = PresentationDisplay(registrar.activity(), viewId, display)
+                        presentation.show()
+                        result.success(true)
+                    }else{
+                        result.error("404", "Can't find display with displayId is $displayId", null)
+                    }
+
+                } catch (e: Exception) {
+                    result.error(call.method, e.message, null)
                 }
             }
             "listDisplay" -> {
                 val gson = Gson()
-                val displays = displayManager.displays
-
-                val listJson= ArrayList<DisplayJson>();
+                val category = call.arguments
+                val displays = displayManager.getDisplays(category as String?)
+                val listJson = ArrayList<DisplayJson>();
                 for (display: Display in displays) {
                     val d = DisplayJson(display.displayId, display.flags, display.rotation, display.name)
                     listJson.add(d)
                 }
                 result.success(gson.toJson(listJson))
             }
-            "displayName" -> {
+            "transferDataToPresentation" -> {
                 try {
-                    val display = displayManager.displays[call.arguments as Int]
-                    result.success(display.name)
+                    flutterEngineChannel?.invokeMethod("DataTransfer", call.arguments)
+                    result.success(true)
                 } catch (e: Exception) {
-                    result.error(call.method, e.message, null);
+                    result.success(false)
                 }
             }
         }
+    }
+
+    private fun createFlutterEngine(tag: String): FlutterEngine {
+        val flutterEngine = FlutterEngine(registrar.context())
+        flutterEngine.navigationChannel.setInitialRoute(tag)
+        flutterEngine.dartExecutor.executeDartEntrypoint(
+                DartExecutor.DartEntrypoint.createDefault()
+        )
+        flutterEngine.lifecycleChannel.appIsResumed()
+        // Cache the FlutterEngine to be used by FlutterActivity.
+        FlutterEngineCache.getInstance().put(tag, flutterEngine)
+        return flutterEngine
     }
 }

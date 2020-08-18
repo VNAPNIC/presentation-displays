@@ -1,6 +1,5 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:presentation_displays/presentation_displays.dart';
 
 void main() {
   const MethodChannel channel = MethodChannel('presentation_displays');
@@ -15,9 +14,5 @@ void main() {
 
   tearDown(() {
     channel.setMockMethodCallHandler(null);
-  });
-
-  test('getPlatformVersion', () async {
-    expect(await PresentationDisplays.platformVersion, '42');
   });
 }

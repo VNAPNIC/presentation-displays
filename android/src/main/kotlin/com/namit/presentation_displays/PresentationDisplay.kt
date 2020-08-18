@@ -12,6 +12,9 @@ import io.flutter.embedding.engine.FlutterEngineCache
 
 class PresentationDisplay(context: Context, private val viewId: Int, display: Display) : Presentation(context, display) {
 
+    /**
+     * @hide
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
