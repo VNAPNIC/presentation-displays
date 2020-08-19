@@ -9,10 +9,26 @@ const _listDisplay = "listDisplay";
 const _showPresentation = "showPresentation";
 const _transferDataToPresentation = "transferDataToPresentation";
 
+/// Display category: Presentation displays.
+/// <p>
+/// This category can be used to identify secondary displays that are suitable for
+/// use as presentation displays such as HDMI or Wireless displays.  Applications
+/// may automatically project their content to presentation displays to provide
+/// richer second screen experiences.
+/// </p>
+/// <p>
+/// Use the following methods to query the real display area:
+/// [DisplayManager.getDisplays], [DisplayManager.getNameByDisplayId],
+/// [DisplayManager.getNameByIndex], [DisplayManager.showPresentation],
+/// [DisplayManager.transferDataToPresentation]
+/// </p>
+///
+/// [DisplayManager.getDisplays]
+///
 const String DISPLAY_CATEGORY_PRESENTATION =
     "android.hardware.display.category.PRESENTATION";
 
-/// it will provide you with the method for you to work with [PresentationDisplay].
+/// Provide you with the method for you to work with [PresentationDisplay].
 class DisplayManager {
   final _displayChannel = "presentation_displays_plugin";
   MethodChannel _displayMethodChannel;
@@ -34,7 +50,7 @@ class DisplayManager {
   /// [category] The requested display category or null to return all displays.
   /// @return An array containing all displays sorted by order of preference.
   ///
-  /// @see [DISPLAY_CATEGORY_PRESENTATION]
+  /// See [DISPLAY_CATEGORY_PRESENTATION]
   FutureOr<List<Display>> getDisplays({String category}) async {
     List<dynamic> origins = await jsonDecode(await _displayMethodChannel
             ?.invokeMethod(_listDisplay, category)) ??
@@ -51,7 +67,7 @@ class DisplayManager {
   /// <p>
   /// Note that some displays may be renamed by the user.
   /// [category] The requested display category or null to return all displays.
-  /// @see [DISPLAY_CATEGORY_PRESENTATION]
+  /// See [DISPLAY_CATEGORY_PRESENTATION]
   /// </p>
   ///
   /// @return The display's name.
@@ -70,7 +86,7 @@ class DisplayManager {
   /// <p>
   /// Note that some displays may be renamed by the user.
   /// [category] The requested display category or null to return all displays.
-  /// @see [DISPLAY_CATEGORY_PRESENTATION]
+  /// see [DISPLAY_CATEGORY_PRESENTATION]
   /// </p>
   ///
   /// @return The display's name
@@ -91,7 +107,7 @@ class DisplayManager {
   /// [routerName] The screen you want to display on the presentation.
   /// </P>
   ///
-  /// @return [Future<bool>] about the status has been display or not
+  /// return [Future<bool>] about the status has been display or not
   Future<bool> showPresentation(
       {@required int displayId, @required String routerName}) {
     return _displayMethodChannel?.invokeMethod(
@@ -108,7 +124,7 @@ class DisplayManager {
   /// Consider using [arguments] for cases where a particular run-time type is expected. Consider using String when that run-time type is Map or JSONObject.
   /// </p>
   ///
-  /// @return [Future<bool>] the value to determine whether or not the data has been transferred successfully
+  /// return [Future<bool>] the value to determine whether or not the data has been transferred successfully
   Future<bool> transferDataToPresentation(dynamic arguments) {
     return _displayMethodChannel?.invokeMethod(
         _transferDataToPresentation, arguments);
