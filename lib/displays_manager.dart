@@ -123,6 +123,51 @@ class DisplayManager {
   /// Transfer data from main screen to screen Presentation display
   /// Consider using [arguments] for cases where a particular run-time type is expected. Consider using String when that run-time type is Map or JSONObject.
   /// </p>
+  /// <p>
+  /// Main Screen
+  ///
+  /// ```dart
+  /// DisplayManager displayManager = DisplayManager();
+  /// ...
+  /// static Future<void> transferData(Song song) async {
+  ///   displayManager.transferDataToPresentation(<String, dynamic>{
+  ///         'id': song.id,
+  ///         'title': song.title,
+  ///         'artist': song.artist,
+  ///       });
+  /// }
+  /// ```
+  /// Presentation Screen
+  ///
+  /// ```dart
+  /// class _PresentationScreenState extends State<PresentationScreen> {
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///       return PresentationDisplay(
+  ///        callback: (argument) {
+  ///          Song.fromJson(argument)
+  ///       },
+  ///       child: Center()
+  ///     );
+  ///   }
+  /// }
+  /// ```
+  /// Class Song
+  ///
+  /// ```dart
+  /// class Song {
+  ///   Song(this.id, this.title, this.artist);
+  ///
+  ///   final String id;
+  ///   final String title;
+  ///   final String artist;
+  ///
+  ///   static Song fromJson(dynamic json) {
+  ///     return Song(json['id'], json['title'], json['artist']);
+  ///   }
+  /// }
+  /// ```
+  /// </p>
   ///
   /// return [Future<bool>] the value to determine whether or not the data has been transferred successfully
   Future<bool> transferDataToPresentation(dynamic arguments) {
