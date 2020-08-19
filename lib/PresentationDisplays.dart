@@ -1,21 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:presentation_displays/displays_manager.dart';
 
 typedef ArgumentsCallback = Function(dynamic arguments);
 
-
-
 class PresentationDisplay extends StatefulWidget {
-
   /// This widget will wrap the Presentation View Flutter UI, it will receive data transmitted from [DisplaysManager].
   /// [callback] func to receive data transmitted from the [DisplaysManager].
   /// [child] Flutter UI displayed on Presentation
   PresentationDisplay({@required this.callback, this.child});
 
- final ArgumentsCallback callback;
+  final ArgumentsCallback callback;
 
- final Widget child;
+  final Widget child;
 
   @override
   _PresentationDisplayState createState() => _PresentationDisplayState();
@@ -33,7 +29,7 @@ class _PresentationDisplayState extends State<PresentationDisplay> {
 
   @override
   Widget build(BuildContext context) {
-    return widget.child??Container();
+    return widget.child ?? Container();
   }
 
   /// Only use a subscription to listen within the presentation display

@@ -1,3 +1,7 @@
+## 0.1.3
+
+* fix static analysis
+
 ## 0.1.2
 
 * add video demo

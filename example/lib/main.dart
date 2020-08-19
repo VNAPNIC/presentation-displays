@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:presentation_displays/PresentationDisplays.dart';
 import 'package:presentation_displays/displays_manager.dart';
@@ -12,8 +11,7 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return MaterialPageRoute(builder: (_) => PresentationScreen());
     default:
       return MaterialPageRoute(
-          builder: (_) =>
-              Scaffold(
+          builder: (_) => Scaffold(
                 body: Center(
                     child: Text('No route defined for ${settings.name}')),
               ));
@@ -46,7 +44,10 @@ class Button extends StatelessWidget {
       margin: EdgeInsets.all(4.0),
       child: RaisedButton(
         onPressed: function,
-        child: Text(title, style: TextStyle(fontSize: 40),),
+        child: Text(
+          title,
+          style: TextStyle(fontSize: 40),
+        ),
       ),
     );
   }
@@ -83,7 +84,9 @@ class _DisplayManagerScreenState extends State<DisplayManagerScreen> {
                   print(displays);
                 }),
                 Button("ShowPresentation", () async {
-                  final value = await displayManager.showPresentation(displayId: displays[1].displayId,routerName:"presentation");
+                  displayManager.showPresentation(
+                      displayId: displays[1].displayId,
+                      routerName: "presentation");
                 }),
                 Button("NameByDisplayId", () async {
                   final value = await displayManager
@@ -95,7 +98,8 @@ class _DisplayManagerScreenState extends State<DisplayManagerScreen> {
                   print(value);
                 }),
                 Button("TransferData", () async {
-                  final value = await displayManager.transferDataToPresentation("test transfer data");
+                  final value = await displayManager
+                      .transferDataToPresentation("test transfer data");
                   print(value);
                 })
               ],
@@ -107,7 +111,6 @@ class _DisplayManagerScreenState extends State<DisplayManagerScreen> {
   }
 }
 
-
 /// UI of Presentation
 class PresentationScreen extends StatefulWidget {
   @override
@@ -116,13 +119,18 @@ class PresentationScreen extends StatefulWidget {
 
 class _PresentationScreenState extends State<PresentationScreen> {
   String value = "init";
+
   @override
   Widget build(BuildContext context) {
-    return PresentationDisplay(callback: (argument){
-      setState(() {
-        value = argument;
-      });
-    },child: Center(child: Text(value),),);
+    return PresentationDisplay(
+      callback: (argument) {
+        setState(() {
+          value = argument;
+        });
+      },
+      child: Center(
+        child: Text(value),
+      ),
+    );
   }
 }
-

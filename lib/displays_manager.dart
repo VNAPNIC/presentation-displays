@@ -14,11 +14,10 @@ const String DISPLAY_CATEGORY_PRESENTATION =
 
 /// it will provide you with the method for you to work with [PresentationDisplay].
 class DisplayManager {
-
   final _displayChannel = "presentation_displays_plugin";
   MethodChannel _displayMethodChannel;
 
-  DisplayManager(){
+  DisplayManager() {
     _displayMethodChannel = MethodChannel(_displayChannel);
   }
 
@@ -37,8 +36,8 @@ class DisplayManager {
   ///
   /// @see [DISPLAY_CATEGORY_PRESENTATION]
   FutureOr<List<Display>> getDisplays({String category}) async {
-    List<dynamic> origins = await jsonDecode(
-            await _displayMethodChannel?.invokeMethod(_listDisplay, category)) ??
+    List<dynamic> origins = await jsonDecode(await _displayMethodChannel
+            ?.invokeMethod(_listDisplay, category)) ??
         [];
     List<Display> displays = [];
     origins.forEach((element) {
@@ -93,8 +92,11 @@ class DisplayManager {
   /// </P>
   ///
   /// @return [Future<bool>] about the status has been display or not
-  Future<bool> showPresentation({@required int displayId,@required String routerName}) {
-    return _displayMethodChannel?.invokeMethod(_showPresentation, "{"
+  Future<bool> showPresentation(
+      {@required int displayId, @required String routerName}) {
+    return _displayMethodChannel?.invokeMethod(
+        _showPresentation,
+        "{"
         "\"displayId\": $displayId,"
         "\"routerName\": \"$routerName\""
         "}");
