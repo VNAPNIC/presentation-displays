@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:presentation_displays/displays_manager.dart';
 
-/// Only use a subscription to listen within the presentation display
+/// Only use a subscription to listen within the secondary display
 /// [arguments] returned  type [dynamic]
 typedef ArgumentsCallback = Function(dynamic arguments);
 
-/// This widget will wrap the Presentation View Flutter UI, it will receive data transmitted from [DisplayManager].
-/// [PresentationDisplay.callback] instance of [ArgumentsCallback] to receive data transmitted from the [DisplayManager].
-/// [PresentationDisplay.child] Your Flutter UI on Presentation Screen
-class PresentationDisplay extends StatefulWidget {
-  PresentationDisplay({@required this.callback, this.child});
+/// This widget will wrap the secondary display, it will receive data transmitted from [DisplayManager].
+/// [SecondaryDisplay.callback] instance of [ArgumentsCallback] to receive data transmitted from the [DisplayManager].
+/// [SecondaryDisplay.child] child widget of secondary display
+class SecondaryDisplay extends StatefulWidget {
+  SecondaryDisplay({@required this.callback, this.child});
 
   /// instance of [ArgumentsCallback] to receive data transmitted from the [DisplaysManager].
   final ArgumentsCallback callback;
@@ -19,10 +19,10 @@ class PresentationDisplay extends StatefulWidget {
   final Widget child;
 
   @override
-  _PresentationDisplayState createState() => _PresentationDisplayState();
+  _SecondaryDisplayState createState() => _SecondaryDisplayState();
 }
 
-class _PresentationDisplayState extends State<PresentationDisplay> {
+class _SecondaryDisplayState extends State<SecondaryDisplay> {
   final _presentationChannel = "presentation_displays_plugin_engine";
   MethodChannel _presentationMethodChannel;
 

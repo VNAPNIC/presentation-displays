@@ -1,3 +1,8 @@
+## 0.1.7
+
+* update documents
+* Replace PresentationDisplay to SecondaryDisplay
+
 ## 0.1.6
 
 * update documents of transferDataToPresentation

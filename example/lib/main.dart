@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:presentation_displays/PresentationDisplays.dart';
 import 'package:presentation_displays/displays_manager.dart';
 import 'package:presentation_displays/display.dart';
+import 'package:presentation_displays/secondary_display.dart';
 
 Route<dynamic> generateRoute(RouteSettings settings) {
   switch (settings.name) {
     case '/':
       return MaterialPageRoute(builder: (_) => DisplayManagerScreen());
     case 'presentation':
-      return MaterialPageRoute(builder: (_) => PresentationScreen());
+      return MaterialPageRoute(builder: (_) => SecondaryScreen());
     default:
       return MaterialPageRoute(
           builder: (_) => Scaffold(
@@ -83,8 +83,8 @@ class _DisplayManagerScreenState extends State<DisplayManagerScreen> {
                   displays.addAll(values);
                   print(displays);
                 }),
-                Button("ShowPresentation", () async {
-                  displayManager.showPresentation(
+                Button("Show presentation", () async {
+                  displayManager.showSecondaryDisplay(
                       displayId: displays[1].displayId,
                       routerName: "presentation");
                 }),
@@ -111,18 +111,18 @@ class _DisplayManagerScreenState extends State<DisplayManagerScreen> {
   }
 }
 
-/// UI of Presentation
-class PresentationScreen extends StatefulWidget {
+/// UI of Presentation display
+class SecondaryScreen extends StatefulWidget {
   @override
-  _PresentationScreenState createState() => _PresentationScreenState();
+  _SecondaryScreenState createState() => _SecondaryScreenState();
 }
 
-class _PresentationScreenState extends State<PresentationScreen> {
+class _SecondaryScreenState extends State<SecondaryScreen> {
   String value = "init";
 
   @override
   Widget build(BuildContext context) {
-    return PresentationDisplay(
+    return SecondaryDisplay(
       callback: (argument) {
         setState(() {
           value = argument;
