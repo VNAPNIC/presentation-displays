@@ -10,13 +10,13 @@ typedef ArgumentsCallback = Function(dynamic arguments);
 /// [SecondaryDisplay.callback] instance of [ArgumentsCallback] to receive data transmitted from the [DisplayManager].
 /// [SecondaryDisplay.child] child widget of secondary display
 class SecondaryDisplay extends StatefulWidget {
-  SecondaryDisplay({@required this.callback, this.child});
+  SecondaryDisplay({required this.callback, this.child});
 
   /// instance of [ArgumentsCallback] to receive data transmitted from the [DisplaysManager].
   final ArgumentsCallback callback;
 
   /// Your Flutter UI on Presentation Screen
-  final Widget child;
+  final Widget? child;
 
   @override
   _SecondaryDisplayState createState() => _SecondaryDisplayState();
@@ -24,7 +24,7 @@ class SecondaryDisplay extends StatefulWidget {
 
 class _SecondaryDisplayState extends State<SecondaryDisplay> {
   final _presentationChannel = "presentation_displays_plugin_engine";
-  MethodChannel _presentationMethodChannel;
+  late MethodChannel _presentationMethodChannel;
 
   @override
   void initState() {

@@ -42,7 +42,7 @@ class Button extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.all(4.0),
-      child: RaisedButton(
+      child: ElevatedButton(
         onPressed: function,
         child: Text(
           title,
