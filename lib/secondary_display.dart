@@ -10,7 +10,7 @@ typedef ArgumentsCallback = Function(dynamic arguments);
 /// [SecondaryDisplay.callback] instance of [ArgumentsCallback] to receive data transmitted from the [DisplayManager].
 /// [SecondaryDisplay.child] child widget of secondary display
 class SecondaryDisplay extends StatefulWidget {
-  SecondaryDisplay({@required this.callback, this.child});
+  SecondaryDisplay({required this.callback,required this.child});
 
   /// instance of [ArgumentsCallback] to receive data transmitted from the [DisplaysManager].
   final ArgumentsCallback callback;
@@ -24,7 +24,7 @@ class SecondaryDisplay extends StatefulWidget {
 
 class _SecondaryDisplayState extends State<SecondaryDisplay> {
   final _presentationChannel = "presentation_displays_plugin_engine";
-  MethodChannel _presentationMethodChannel;
+  MethodChannel? _presentationMethodChannel;
 
   @override
   void initState() {
@@ -34,12 +34,12 @@ class _SecondaryDisplayState extends State<SecondaryDisplay> {
 
   @override
   Widget build(BuildContext context) {
-    return widget.child ?? Container();
+    return widget.child;
   }
 
   _addListenerForPresentation(ArgumentsCallback function) {
     _presentationMethodChannel = MethodChannel(_presentationChannel);
-    _presentationMethodChannel.setMethodCallHandler((call) async {
+    _presentationMethodChannel?.setMethodCallHandler((call) async {
       function(call.arguments);
     });
   }

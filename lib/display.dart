@@ -116,7 +116,7 @@ class Display {
   /// @return The display flags.
   ///
   /// See [FLAG_SUPPORTS_PROTECTED_BUFFERS], [FLAG_SECURE], [FLAG_PRIVATE]
-  int flag;
+  int? flag;
 
   /// Returns the rotation of the screen from its "natural" orientation.
   /// The returned value may be [ROTATION_0]
@@ -130,7 +130,7 @@ class Display {
   /// degrees counter-clockwise, to compensate rendering will be rotated by
   /// 90 degrees clockwise and thus the returned value here will be
   /// [ROTATION_90].
-  int rotation;
+  int? rotation;
 
   /// Gets the name of the display.
   /// <p>
@@ -140,5 +140,6 @@ class Display {
   /// @return The display's name.
   String name;
 
-  Display({this.displayId, this.flag, this.name, this.rotation});
+  Display(
+      {required this.displayId, this.flag, required this.name, this.rotation});
 }

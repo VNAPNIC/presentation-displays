@@ -32,7 +32,7 @@ const String DISPLAY_CATEGORY_PRESENTATION =
 /// Provide you with the method for you to work with [SecondaryDisplay].
 class DisplayManager {
   final _displayChannel = "presentation_displays_plugin";
-  MethodChannel _displayMethodChannel;
+  MethodChannel? _displayMethodChannel;
 
   DisplayManager() {
     _displayMethodChannel = MethodChannel(_displayChannel);
@@ -52,13 +52,13 @@ class DisplayManager {
   /// @return An array containing all displays sorted by order of preference.
   ///
   /// See [DISPLAY_CATEGORY_PRESENTATION]
-  FutureOr<List<Display>> getDisplays({String category}) async {
+  FutureOr<List<Display>?> getDisplays({String? category}) async {
     List<dynamic> origins = await jsonDecode(await _displayMethodChannel
             ?.invokeMethod(_listDisplay, category)) ??
         [];
     List<Display> displays = [];
     origins.forEach((element) {
-      Map map = jsonDecode(jsonEncode(element));
+      final map = jsonDecode(jsonEncode(element));
       displays.add(displayFromJson(map));
     });
     return displays;
@@ -73,10 +73,10 @@ class DisplayManager {
   ///
   /// @return The display's name.
   /// May be null.
-  FutureOr<String> getNameByDisplayId(int displayId, {String category}) async {
+  FutureOr<String?> getNameByDisplayId(int displayId, {String? category}) async {
     List<Display> displays = await getDisplays(category: category) ?? [];
 
-    String name;
+    String? name;
     displays.forEach((element) {
       if (element.displayId == displayId) name = element.name;
     });
@@ -92,9 +92,9 @@ class DisplayManager {
   ///
   /// @return The display's name
   /// May be null.
-  FutureOr<String> getNameByIndex(int index, {String category}) async {
+  FutureOr<String?> getNameByIndex(int index, {String? category}) async {
     List<Display> displays = await getDisplays(category: category) ?? [];
-    String name;
+    String? name;
     if (index >= 0 && index <= displays.length) name = displays[index].name;
     return name;
   }
@@ -108,9 +108,9 @@ class DisplayManager {
   /// </P>
   ///
   /// return [Future<bool>] about the status has been display or not
-  Future<bool> showSecondaryDisplay(
-      {@required int displayId, @required String routerName}) {
-    return _displayMethodChannel?.invokeMethod(
+  Future<bool?>? showSecondaryDisplay(
+      {required int displayId, required String routerName}) {
+    return _displayMethodChannel?.invokeMethod<bool?>(
         _showPresentation,
         "{"
         "\"displayId\": $displayId,"
@@ -170,8 +170,8 @@ class DisplayManager {
   /// </p>
   ///
   /// return [Future<bool>] the value to determine whether or not the data has been transferred successfully
-  Future<bool> transferDataToPresentation(dynamic arguments) {
-    return _displayMethodChannel?.invokeMethod(
+  Future<bool?>? transferDataToPresentation(dynamic arguments) {
+    return _displayMethodChannel?.invokeMethod<bool?>(
         _transferDataToPresentation, arguments);
   }
 }
