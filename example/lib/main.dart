@@ -36,7 +36,7 @@ class Button extends StatelessWidget {
   Button(this.title, this.function);
 
   final String title;
-  final Function function;
+  final VoidCallback? function;
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +61,7 @@ class DisplayManagerScreen extends StatefulWidget {
 
 class _DisplayManagerScreenState extends State<DisplayManagerScreen> {
   DisplayManager displayManager = DisplayManager();
-  List<Display> displays = [];
+  List<Display?> displays = [];
 
   @override
   Widget build(BuildContext context) {
@@ -80,17 +80,17 @@ class _DisplayManagerScreenState extends State<DisplayManagerScreen> {
                   final values = await displayManager.getDisplays();
                   print(values);
                   displays.clear();
-                  displays.addAll(values);
+                  displays.addAll(values!);
                   print(displays);
                 }),
                 Button("Show presentation", () async {
                   displayManager.showSecondaryDisplay(
-                      displayId: displays[1].displayId,
+                      displayId: displays[1]?.displayId ?? -1,
                       routerName: "presentation");
                 }),
                 Button("NameByDisplayId", () async {
                   final value = await displayManager
-                      .getNameByDisplayId(displays[1].displayId);
+                      .getNameByDisplayId(displays[1]?.displayId ?? -1);
                   print(value);
                 }),
                 Button("NameByIndex", () async {
