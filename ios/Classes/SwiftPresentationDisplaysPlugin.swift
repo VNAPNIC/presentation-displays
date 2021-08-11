@@ -3,6 +3,7 @@ import UIKit
 
 public class SwiftPresentationDisplaysPlugin: NSObject, FlutterPlugin {
      static var additionalWindows = [UIWindow]()
+     var flutterEngineChannel:FlutterMethodChannel=FlutterMethodChannel()
     
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(name: "presentation_displays_plugin", binaryMessenger: registrar.messenger())
@@ -31,11 +32,15 @@ public class SwiftPresentationDisplaysPlugin: NSObject, FlutterPlugin {
       if call.method=="showPresentation"{
           showPresentation()
       }
+      else if call.method=="transferDataToPresentation"{
+          self.flutterEngineChannel.invokeMethod("DataTransfer", arguments: call.arguments)
+      }
   }
     private  func showPresentation()
     {
         let extVC = FlutterViewController()
         extVC.setInitialRoute("presentation")
         SwiftPresentationDisplaysPlugin.additionalWindows[0].rootViewController = extVC
+        self.flutterEngineChannel = FlutterMethodChannel(name: "presentation_displays_plugin_engine", binaryMessenger: extVC.binaryMessenger)
     }
 }
