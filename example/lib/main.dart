@@ -85,7 +85,9 @@ class _DisplayManagerScreenState extends State<DisplayManagerScreen> {
                 }),
                 Button("Show presentation", () async {
                   displayManager.showSecondaryDisplay(
-                      displayId: displays[1]?.displayId ?? -1,
+                      displayId: displays.length > 0
+                          ? displays[1]?.displayId ?? -1
+                          : -1,
                       routerName: "presentation");
                 }),
                 Button("NameByDisplayId", () async {

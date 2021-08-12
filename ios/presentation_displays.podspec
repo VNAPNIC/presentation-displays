@@ -5,9 +5,9 @@
 Pod::Spec.new do |s|
   s.name             = 'presentation_displays'
   s.version          = '0.0.1'
-  s.summary          = 'Flutter plugin supports to run on two screens. It's basically a tablet connected to another screen via an HDMI or Wireless'
+  s.summary          = 'Flutter plugin supports to run on two screens. It\'s basically a tablet connected to another screen via an HDMI or Wireless'
   s.description      = <<-DESC
-Flutter plugin supports to run on two screens. It's basically a tablet connected to another screen via an HDMI or Wireless
+Flutter plugin supports to run on two screens. It\'s basically a tablet connected to another screen via an HDMI or Wireless
                        DESC
   s.homepage         = 'http://example.com'
   s.license          = { :file => '../LICENSE' }
