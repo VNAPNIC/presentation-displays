@@ -5,13 +5,11 @@ public class SwiftPresentationDisplaysPlugin: NSObject, FlutterPlugin {
     static var additionalWindows = [UIScreen:UIWindow]()
     static var screens = [UIScreen]()
     var flutterEngineChannel:FlutterMethodChannel=FlutterMethodChannel()
-
-
+    public static var controllerAdded: ((FlutterViewController)->Void)?
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "presentation_displays_plugin", binaryMessenger: registrar.messenger())
         let instance = SwiftPresentationDisplaysPlugin()
         registrar.addMethodCallDelegate(instance, channel: channel)
-
         screens.append(UIScreen.main)
 
         NotificationCenter.default.addObserver(forName: UIScreen.didConnectNotification,
@@ -89,6 +87,7 @@ public class SwiftPresentationDisplaysPlugin: NSObject, FlutterPlugin {
                 window?.isHidden=false
 
                 let extVC = FlutterViewController()
+                SwiftPresentationDisplaysPlugin.controllerAdded!(extVC)
                 extVC.setInitialRoute(routerName)
                 window?.rootViewController = extVC
 
