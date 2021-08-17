@@ -2,24 +2,27 @@ import Flutter
 import UIKit
 
 public class SwiftPresentationDisplaysPlugin: NSObject, FlutterPlugin {
-    static var additionalWindows = [UIScreen:UIWindow]()
-    static var screens = [UIScreen]()
+    var additionalWindows = [UIScreen:UIWindow]()
+    var screens = [UIScreen]()
     var flutterEngineChannel:FlutterMethodChannel=FlutterMethodChannel()
     public static var controllerAdded: ((FlutterViewController)->Void)?
-    public static func register(with registrar: FlutterPluginRegistrar) {
-        let channel = FlutterMethodChannel(name: "presentation_displays_plugin", binaryMessenger: registrar.messenger())
-        let instance = SwiftPresentationDisplaysPlugin()
-        registrar.addMethodCallDelegate(instance, channel: channel)
+    
+    public override init() {
+        super.init()
+        
         screens.append(UIScreen.main)
-
         NotificationCenter.default.addObserver(forName: UIScreen.didConnectNotification,
                                                object: nil, queue: nil) {
             notification in
 
             // Get the new screen information.
             let newScreen = notification.object as! UIScreen
-            let screenDimensions = newScreen.bounds
             
+            let screenDimensions = newScreen.bounds
+            print(newScreen.description)
+            for s in self.screens {
+                print("here:  "+s.description)
+            }
             // Configure a window for the screen.
             let newWindow = UIWindow(frame: screenDimensions)
             newWindow.screen = newScreen
@@ -30,7 +33,9 @@ public class SwiftPresentationDisplaysPlugin: NSObject, FlutterPlugin {
             // Save a reference to the window in a local array.
             self.screens.append(newScreen)
             self.additionalWindows[newScreen]=newWindow
+            
         }
+        
         NotificationCenter.default.addObserver(forName:
                                                     UIScreen.didDisconnectNotification,
                                                object: nil,
@@ -40,6 +45,7 @@ public class SwiftPresentationDisplaysPlugin: NSObject, FlutterPlugin {
           // Remove the window associated with the screen.
             for s in self.screens {
             if s == screen {
+
                 let index = self.screens.index(of: s)
                 self.screens.remove(at: index!)
               // Remove the window and its contents.
@@ -47,7 +53,13 @@ public class SwiftPresentationDisplaysPlugin: NSObject, FlutterPlugin {
             }
           }
         }
-
+    }
+    
+    public static func register(with registrar: FlutterPluginRegistrar) {
+        let channel = FlutterMethodChannel(name: "presentation_displays_plugin", binaryMessenger: registrar.messenger())
+        let instance = SwiftPresentationDisplaysPlugin()
+        registrar.addMethodCallDelegate(instance, channel: channel)
+        
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -55,7 +67,7 @@ public class SwiftPresentationDisplaysPlugin: NSObject, FlutterPlugin {
         if  call.method=="listDisplay"
         {
             var  jsonDisplaysList:String = "[";
-            let screensList = SwiftPresentationDisplaysPlugin.screens
+            let screensList = self.screens
             for i in 0..<screensList.count {
                 jsonDisplaysList+="{\"displayId\":"+String(i)+", \"name\":\"Screen "+String(i)+"\"},"
             }
@@ -95,10 +107,10 @@ public class SwiftPresentationDisplaysPlugin: NSObject, FlutterPlugin {
 
         private  func showPresentation(index:Int, routerName:String )
         {
-            if index>0 && index < SwiftPresentationDisplaysPlugin.screens.count && SwiftPresentationDisplaysPlugin.additionalWindows.keys.contains(SwiftPresentationDisplaysPlugin.screens[index])
+            if index>0 && index < self.screens.count && self.additionalWindows.keys.contains(self.screens[index])
             {
-                let screen=SwiftPresentationDisplaysPlugin.screens[index]
-                let window=SwiftPresentationDisplaysPlugin.additionalWindows[screen]
+                let screen=self.screens[index]
+                let window=self.additionalWindows[screen]
 
                 // You must show the window explicitly.
                 window?.isHidden=false
