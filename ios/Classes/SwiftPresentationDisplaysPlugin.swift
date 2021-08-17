@@ -19,7 +19,7 @@ public class SwiftPresentationDisplaysPlugin: NSObject, FlutterPlugin {
             // Get the new screen information.
             let newScreen = notification.object as! UIScreen
             let screenDimensions = newScreen.bounds
-
+            
             // Configure a window for the screen.
             let newWindow = UIWindow(frame: screenDimensions)
             newWindow.screen = newScreen
@@ -31,6 +31,23 @@ public class SwiftPresentationDisplaysPlugin: NSObject, FlutterPlugin {
             self.screens.append(newScreen)
             self.additionalWindows[newScreen]=newWindow
         }
+        NotificationCenter.default.addObserver(forName:
+                                                    UIScreen.didDisconnectNotification,
+                                               object: nil,
+                                               queue: nil) { notification in
+          let screen = notification.object as! UIScreen
+
+          // Remove the window associated with the screen.
+            for s in self.screens {
+            if s == screen {
+                let index = self.screens.index(of: s)
+                self.screens.remove(at: index!)
+              // Remove the window and its contents.
+              self.additionalWindows.removeValue(forKey: s)
+            }
+          }
+        }
+
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
