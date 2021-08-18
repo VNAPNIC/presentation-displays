@@ -1,3 +1,7 @@
+## 0.2.0
+
+* Supported IOS platform
+
 ## 0.1.9
 
 * Supported Null Safety
