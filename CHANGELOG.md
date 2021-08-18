@@ -1,3 +1,8 @@
+## 0.2.1
+* Adding getDisplays, getNameByDisplayId, and getNameByIndex for iOS
+* Allowing the user to select the screen index and routerName for show presentation for iOS
+* Changing the example UI to allow user input and showing the result on the UI
+
 ## 0.2.0
 
 * Supported IOS platform
