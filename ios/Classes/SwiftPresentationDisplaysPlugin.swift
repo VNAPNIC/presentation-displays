@@ -60,11 +60,14 @@ public class SwiftPresentationDisplaysPlugin: NSObject, FlutterPlugin {
         let instance = SwiftPresentationDisplaysPlugin()
         registrar.addMethodCallDelegate(instance, channel: channel)
         
+        let eventChannel = FlutterEventChannel(name: "presentation_displays_plugin_events", binaryMessenger: registrar.messenger())
+        let displayConnectedStreamHandler = DisplayConnectedStreamHandler()
+        eventChannel.setStreamHandler(displayConnectedStreamHandler)
     }
     
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         //    result("iOS " + UIDevice.current.systemVersion)
-        if  call.method=="listDisplay"
+        if call.method=="listDisplay"
         {
             var  jsonDisplaysList:String = "[";
             let screensList = self.screens
@@ -130,4 +133,36 @@ public class SwiftPresentationDisplaysPlugin: NSObject, FlutterPlugin {
         
     }
     
+}
+
+class DisplayConnectedStreamHandler: NSObject, FlutterStreamHandler{
+    var sink: FlutterEventSink?
+    var didConnectObserver: NSObjectProtocol?
+    var didDisconnectObserver: NSObjectProtocol?
+    
+    func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+        sink = events
+        didConnectObserver = NotificationCenter.default.addObserver(forName: UIScreen.didConnectNotification,
+                            object: nil, queue: nil) { (notification) in
+            guard let sink = self.sink else { return }
+            sink(1)
+           }
+        didDisconnectObserver = NotificationCenter.default.addObserver(forName: UIScreen.didDisconnectNotification,
+                            object: nil, queue: nil) { (notification) in
+            guard let sink = self.sink else { return }
+            sink(0)
+           }
+        return nil
+    }
+    
+    func onCancel(withArguments arguments: Any?) -> FlutterError? {
+        sink = nil
+        if (didConnectObserver != nil){
+            NotificationCenter.default.removeObserver(didConnectObserver!)
+        }
+        if (didDisconnectObserver != nil){
+            NotificationCenter.default.removeObserver(didDisconnectObserver!)
+        }
+        return nil
+    }
 }

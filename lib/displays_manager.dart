@@ -31,11 +31,14 @@ const String DISPLAY_CATEGORY_PRESENTATION =
 
 /// Provide you with the method for you to work with [SecondaryDisplay].
 class DisplayManager {
-  final _displayChannel = "presentation_displays_plugin";
-  MethodChannel? _displayMethodChannel;
+  final _displayMethodChannelId = "presentation_displays_plugin";
+  final _displayEventChannelId = "presentation_displays_plugin_events";
+  late MethodChannel _displayMethodChannel;
+  late EventChannel _displayEventChannel;
 
   DisplayManager() {
-    _displayMethodChannel = MethodChannel(_displayChannel);
+    _displayMethodChannel = MethodChannel(_displayMethodChannelId);
+    _displayEventChannel = EventChannel(_displayEventChannelId);
   }
 
   /// Gets all currently valid logical displays of the specified category.
@@ -54,7 +57,7 @@ class DisplayManager {
   /// See [DISPLAY_CATEGORY_PRESENTATION]
   FutureOr<List<Display>?> getDisplays({String? category}) async {
     List<dynamic> origins = await jsonDecode(await _displayMethodChannel
-            ?.invokeMethod(_listDisplay, category)) ??
+            .invokeMethod(_listDisplay, category)) ??
         [];
     List<Display> displays = [];
     origins.forEach((element) {
@@ -110,7 +113,7 @@ class DisplayManager {
   /// return [Future<bool>] about the status has been display or not
   Future<bool?>? showSecondaryDisplay(
       {required int displayId, required String routerName}) {
-    return _displayMethodChannel?.invokeMethod<bool?>(
+    return _displayMethodChannel.invokeMethod<bool?>(
         _showPresentation,
         "{"
         "\"displayId\": $displayId,"
@@ -171,7 +174,13 @@ class DisplayManager {
   ///
   /// return [Future<bool>] the value to determine whether or not the data has been transferred successfully
   Future<bool?>? transferDataToPresentation(dynamic arguments) {
-    return _displayMethodChannel?.invokeMethod<bool?>(
+    return _displayMethodChannel.invokeMethod<bool?>(
         _transferDataToPresentation, arguments);
+  }
+
+  /// Subscribe to the stream to get notifications about connected / disconnected displays
+  /// Streams [1] for new connected display and [0] for disconnected display
+  Stream<int> get connectedDisplaysChangedStream {
+    return _displayEventChannel.receiveBroadcastStream().cast();
   }
 }
