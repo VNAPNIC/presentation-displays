@@ -8,6 +8,7 @@ import 'package:presentation_displays/secondary_display.dart';
 
 const _listDisplay = "listDisplay";
 const _showPresentation = "showPresentation";
+const _hidePresentation = "hidePresentation";
 const _transferDataToPresentation = "transferDataToPresentation";
 
 /// Display category: secondary display.
@@ -119,6 +120,21 @@ class DisplayManager {
         "\"displayId\": $displayId,"
         "\"routerName\": \"$routerName\""
         "}");
+  }
+
+  /// Hides secondary display that is attached to the specified display
+  /// <p>
+  /// [displayId] The id of display to which the secondary display should be attached.
+  /// </P>
+  ///
+  /// return [Future<bool>] about the status has been display or not
+  Future<bool?>? hideSecondaryDisplay(
+      {required int displayId}) {
+    return _displayMethodChannel.invokeMethod<bool?>(
+        _hidePresentation,
+        "{"
+            "\"displayId\": $displayId"
+            "}");
   }
 
   /// Transfer data to a secondary display

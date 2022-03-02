@@ -4,7 +4,7 @@ import UIKit
 public class SwiftPresentationDisplaysPlugin: NSObject, FlutterPlugin {
     var additionalWindows = [UIScreen:UIWindow]()
     var screens = [UIScreen]()
-    var flutterEngineChannel:FlutterMethodChannel=FlutterMethodChannel()
+    var flutterEngineChannel:FlutterMethodChannel?=nil
     public static var controllerAdded: ((FlutterViewController)->Void)?
     
     public override init() {
@@ -46,7 +46,7 @@ public class SwiftPresentationDisplaysPlugin: NSObject, FlutterPlugin {
             for s in self.screens {
                 if s == screen {
                     
-                    let index = self.screens.index(of: s)
+                    let index = self.screens.firstIndex(of: s)
                     self.screens.remove(at: index!)
                     // Remove the window and its contents.
                     self.additionalWindows.removeValue(forKey: s)
@@ -66,7 +66,6 @@ public class SwiftPresentationDisplaysPlugin: NSObject, FlutterPlugin {
     }
     
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        //    result("iOS " + UIDevice.current.systemVersion)
         if call.method=="listDisplay"
         {
             var  jsonDisplaysList:String = "[";
@@ -101,8 +100,28 @@ public class SwiftPresentationDisplaysPlugin: NSObject, FlutterPlugin {
                 result(false)
             }
         }
+        else if call.method=="hidePresentation"{
+            let args = call.arguments as? String
+            let data = args?.data(using: .utf8)!
+            do {
+                if let json = try JSONSerialization.jsonObject(with: data ?? Data(), options : .allowFragments) as? Dictionary<String,Any>
+                {
+                    print(json)
+                    hidePresentation(index:json["displayId"] as? Int ?? 1)
+                    result(true)
+                }
+                else {
+                    print("bad json")
+                    result(false)
+                }
+            }
+            catch let error as NSError {
+                print(error)
+                result(false)
+            }
+        }
         else if call.method=="transferDataToPresentation"{
-            self.flutterEngineChannel.invokeMethod("DataTransfer", arguments: call.arguments)
+            self.flutterEngineChannel?.invokeMethod("DataTransfer", arguments: call.arguments)
             result(true)
         }
         else
@@ -112,7 +131,7 @@ public class SwiftPresentationDisplaysPlugin: NSObject, FlutterPlugin {
         
     }
     
-    private  func showPresentation(index:Int, routerName:String )
+    private func showPresentation(index:Int, routerName:String )
     {
         if index>0 && index < self.screens.count && self.additionalWindows.keys.contains(self.screens[index])
         {
@@ -122,13 +141,26 @@ public class SwiftPresentationDisplaysPlugin: NSObject, FlutterPlugin {
             // You must show the window explicitly.
             window?.isHidden=false
             
-            let extVC = FlutterViewController()
+            let extVC = FlutterViewController(project: nil, initialRoute: routerName, nibName: nil, bundle: nil)
             SwiftPresentationDisplaysPlugin.controllerAdded!(extVC)
-            extVC.setInitialRoute(routerName)
             window?.rootViewController = extVC
             
             
             self.flutterEngineChannel = FlutterMethodChannel(name: "presentation_displays_plugin_engine", binaryMessenger: extVC.binaryMessenger)
+        }
+    }
+    
+    private func hidePresentation(index:Int)
+    {
+        if index>0 && index < self.screens.count && self.additionalWindows.keys.contains(self.screens[index])
+        {
+            let screen=self.screens[index]
+            let window=self.additionalWindows[screen]
+            
+            window?.rootViewController = nil
+            window?.isHidden=true
+
+            self.flutterEngineChannel = nil
         }
         
     }
