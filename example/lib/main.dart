@@ -72,6 +72,14 @@ class _DisplayManagerScreenState extends State<DisplayManagerScreen> {
   String _nameOfIndex = "";
 
   @override
+  void initState() {
+    displayManager.connectedDisplaysChangedStream.listen((event) {
+      debugPrint("connected displays changed: $event");
+    },);
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(

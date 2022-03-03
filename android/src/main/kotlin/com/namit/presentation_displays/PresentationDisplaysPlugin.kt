@@ -3,6 +3,7 @@ package com.namit.presentation_displays
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.hardware.display.DisplayManager
+import android.os.Handler
 import android.util.Log
 import android.view.Display
 import androidx.annotation.NonNull
@@ -13,6 +14,7 @@ import io.flutter.embedding.engine.dart.DartExecutor
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry
@@ -23,17 +25,25 @@ class PresentationDisplaysPlugin() : FlutterPlugin, ActivityAware, MethodChannel
 
 
   private lateinit var channel : MethodChannel
+  private lateinit var eventChannel : EventChannel
   private var flutterEngineChannel: MethodChannel? = null
-  private var displayManager: DisplayManager? = null
   private var context:Context?=null
+  private var presentationDisplay:PresentationDisplay?=null
 
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-    channel = MethodChannel(flutterPluginBinding.flutterEngine.dartExecutor, viewTypeId)
+    channel = MethodChannel(flutterPluginBinding.binaryMessenger, viewTypeId)
     channel.setMethodCallHandler(this)
+
+    eventChannel = EventChannel(flutterPluginBinding.binaryMessenger, viewTypeEventsId)
+    displayManager = flutterPluginBinding.applicationContext.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+    val displayConnectedStreamHandler = DisplayConnectedStreamHandler(displayManager)
+    eventChannel.setStreamHandler(displayConnectedStreamHandler)
   }
 
   companion object{
-   private val viewTypeId = "presentation_displays_plugin"
+   private const val viewTypeId = "presentation_displays_plugin"
+   private const val viewTypeEventsId = "presentation_displays_plugin_events"
+   private var displayManager: DisplayManager? = null
 
     /**
      * @hide
@@ -42,11 +52,17 @@ class PresentationDisplaysPlugin() : FlutterPlugin, ActivityAware, MethodChannel
     fun registerWith(registrar: PluginRegistry.Registrar) {
       val channel = MethodChannel(registrar.messenger(), viewTypeId)
       channel.setMethodCallHandler(PresentationDisplaysPlugin())
+
+      val eventChannel = EventChannel(registrar.messenger(), viewTypeEventsId)
+      displayManager = registrar.activity().getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+      val displayConnectedStreamHandler = DisplayConnectedStreamHandler(displayManager)
+      eventChannel.setStreamHandler(displayConnectedStreamHandler)
     }
   }
 
   override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
     channel.setMethodCallHandler(null)
+    eventChannel.setStreamHandler(null)
   }
 
   override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
@@ -65,8 +81,8 @@ class PresentationDisplaysPlugin() : FlutterPlugin, ActivityAware, MethodChannel
           if (display != null) {
             flutterEngine?.let {
               flutterEngineChannel = MethodChannel(it.dartExecutor.binaryMessenger, "${viewTypeId}_engine")
-              val presentation = context?.let { it1 -> PresentationDisplay(it1, tag, display) }
-              presentation?.show()
+              presentationDisplay = context?.let { it1 -> PresentationDisplay(it1, tag, display) }
+              presentationDisplay?.show()
               result.success(true)
             } ?: result.error("404", "Can't find FlutterEngine", null)
 
@@ -74,6 +90,18 @@ class PresentationDisplaysPlugin() : FlutterPlugin, ActivityAware, MethodChannel
             result.error("404", "Can't find display with displayId is $displayId", null)
           }
 
+        } catch (e: Exception) {
+          result.error(call.method, e.message, null)
+        }
+      }
+      "hidePresentation" -> {
+        try {
+          val obj = JSONObject(call.arguments as String)
+          Log.i(TAG, "Channel: method: ${call.method} | displayId: ${obj.getInt("displayId")}")
+
+          presentationDisplay?.dismiss()
+          presentationDisplay = null
+          result.success(true)
         } catch (e: Exception) {
           result.error(call.method, e.message, null)
         }
@@ -127,9 +155,38 @@ class PresentationDisplaysPlugin() : FlutterPlugin, ActivityAware, MethodChannel
 
   override fun onAttachedToActivity(binding: ActivityPluginBinding) {
     this.context = binding.activity
-    this.displayManager = context?.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+    displayManager = context?.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
   }
 
   override fun onDetachedFromActivityForConfigChanges() {
+  }
+}
+
+class DisplayConnectedStreamHandler(private var displayManager: DisplayManager?) : EventChannel.StreamHandler {
+  private var sink: EventChannel.EventSink? = null
+  var handler: Handler? = null
+
+  private val displayListener = object : DisplayManager.DisplayListener {
+    override fun onDisplayAdded(displayId: Int) {
+      sink?.success(1)
+    }
+
+    override fun onDisplayRemoved(displayId: Int) {
+      sink?.success(0)
+    }
+
+    override fun onDisplayChanged(p0: Int) {}
+  }
+
+  override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+    sink = events
+    handler = Handler()
+    displayManager?.registerDisplayListener(displayListener, handler)
+  }
+
+  override fun onCancel(arguments: Any?) {
+    sink = null
+    handler = null
+    displayManager?.unregisterDisplayListener(displayListener)
   }
 }
