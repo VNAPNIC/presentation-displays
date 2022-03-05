@@ -73,7 +73,8 @@ class DisplayManager {
   ///
   /// @return The display's name.
   /// May be null.
-  FutureOr<String?> getNameByDisplayId(int displayId, {String? category}) async {
+  FutureOr<String?> getNameByDisplayId(int displayId,
+      {String? category}) async {
     List<Display> displays = await getDisplays(category: category) ?? [];
 
     String? name;
