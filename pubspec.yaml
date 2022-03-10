@@ -4,7 +4,10 @@ homepage: https://github.com/VNAPNIC/presentation-displays
 version: 0.2.2
 
 environment:
-  sdk: ">=2.14.0 <3.0.0"
+  sdk: ">=2.1.0 <3.0.0"
+  # Flutter versions prior to 1.12 did not support the
+  # flutter.plugin.platforms map.
+  flutter: ">=1.12.0"
 
 dependencies:
   flutter:
