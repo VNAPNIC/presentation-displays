@@ -1,9 +1,17 @@
 package com.namit.presentation_displays
 
+import com.google.gson.annotations.SerializedName
+
 /**
  * @hide
  */
-data class DisplayJson(val displayId: Int,
-                       val flags: Int,
-                       val rotation: Int,
-                       val name: String)
+data class DisplayJson(
+    @SerializedName("displayId")
+    val displayId: Int,
+    @SerializedName("flags")
+    val flags: Int,
+    @SerializedName("rotation")
+    val rotation: Int,
+    @SerializedName("name")
+    val name: String
+)
