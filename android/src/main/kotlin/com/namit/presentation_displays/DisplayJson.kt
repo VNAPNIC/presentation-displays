@@ -1,10 +1,12 @@
 package com.namit.presentation_displays
 
+import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
 
 /**
  * @hide
  */
+@Keep
 data class DisplayJson(
     @SerializedName("displayId")
     val displayId: Int,
