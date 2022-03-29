@@ -1,6 +1,6 @@
-import UIKit
 import Flutter
 import presentation_displays
+import UIKit
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
   override func application(
@@ -11,8 +11,8 @@ import presentation_displays
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
-    func controllerAdded(controller:FlutterViewController)
-    {
-        GeneratedPluginRegistrant.register(with: controller)
-    }
+
+  func controllerAdded(controller: FlutterViewController) {
+    GeneratedPluginRegistrant.register(with: controller)
+  }
 }

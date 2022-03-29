@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:presentation_displays/displays_manager.dart';
+
+import 'displays_manager.dart';
 
 /// Only use a subscription to listen within the secondary display
 /// [arguments] returned  type [dynamic]
@@ -25,7 +26,7 @@ class SecondaryDisplay extends StatefulWidget {
 }
 
 class _SecondaryDisplayState extends State<SecondaryDisplay> {
-  final _presentationChannel = "presentation_displays_plugin_engine";
+  final _presentationChannel = 'presentation_displays_plugin_engine';
   MethodChannel? _presentationMethodChannel;
 
   @override
