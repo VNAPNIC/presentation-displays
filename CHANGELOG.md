@@ -1,3 +1,6 @@
+## 0.2.3
+* Fix for "show presentation" wrong index
+
 ## 0.2.2
 *gradle updated & and example proguard rule added
 
