@@ -57,10 +57,10 @@ class DisplayManager {
             ?.invokeMethod(_listDisplay, category)) ??
         [];
     List<Display> displays = [];
-    origins.forEach((element) {
+    for (var element in origins) {
       final map = jsonDecode(jsonEncode(element));
       displays.add(displayFromJson(map));
-    });
+    }
     return displays;
   }
 
@@ -78,9 +78,9 @@ class DisplayManager {
     List<Display> displays = await getDisplays(category: category) ?? [];
 
     String? name;
-    displays.forEach((element) {
+    for (var element in displays) {
       if (element.displayId == displayId) name = element.name;
-    });
+    }
     return name;
   }
 
