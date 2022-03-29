@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:presentation_displays/display.dart';
-import 'package:presentation_displays/displays_manager.dart';
-import 'package:presentation_displays/secondary_display.dart';
+import 'package:presentation_displays/presentation_displays.dart';
 
 Route<dynamic> generateRoute(RouteSettings settings) {
   switch (settings.name) {
@@ -73,9 +71,9 @@ class _DisplayManagerScreenState extends State<DisplayManagerScreen> {
       TextEditingController();
 
   final TextEditingController _nameOfIdController = TextEditingController();
-  String _nameOfId = "";
+  String _nameOfId = '';
   final TextEditingController _nameOfIndexController = TextEditingController();
-  String _nameOfIndex = "";
+  String _nameOfIndex = '';
 
   @override
   Widget build(BuildContext context) {
@@ -107,7 +105,7 @@ class _DisplayManagerScreenState extends State<DisplayManagerScreen> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Button(
-            title: "Get Displays",
+            title: 'Get Displays',
             onPressed: () async {
               final values = await displayManager.getDisplays();
               displays.clear();
@@ -149,14 +147,14 @@ class _DisplayManagerScreenState extends State<DisplayManagerScreen> {
           ),
         ),
         Button(
-            title: "Show presentation",
+            title: 'Show presentation',
             onPressed: () async {
-              int? displayId = int.tryParse(_indexToShareController.text);
+              final int? displayId = int.tryParse(_indexToShareController.text);
               if (displayId != null) {
                 for (final display in displays) {
                   if (display?.displayId == displayId) {
                     displayManager.showSecondaryDisplay(
-                        displayId: displayId, routerName: "presentation");
+                        displayId: displayId, routerName: 'presentation');
                   }
                 }
               }
@@ -182,9 +180,9 @@ class _DisplayManagerScreenState extends State<DisplayManagerScreen> {
           ),
         ),
         Button(
-            title: "TransferData",
+            title: 'TransferData',
             onPressed: () async {
-              String data = _dataToTransferController.text;
+              final String data = _dataToTransferController.text;
               await displayManager.transferDataToPresentation(data);
             }),
         const Divider(),
@@ -208,14 +206,14 @@ class _DisplayManagerScreenState extends State<DisplayManagerScreen> {
           ),
         ),
         Button(
-            title: "NameByDisplayId",
+            title: 'NameByDisplayId',
             onPressed: () async {
-              int? id = int.tryParse(_nameOfIdController.text);
+              final int? id = int.tryParse(_nameOfIdController.text);
               if (id != null) {
                 final value = await displayManager
                     .getNameByDisplayId(displays[id]?.displayId ?? -1);
                 setState(() {
-                  _nameOfId = value ?? "";
+                  _nameOfId = value ?? '';
                 });
               }
             }),
@@ -244,13 +242,13 @@ class _DisplayManagerScreenState extends State<DisplayManagerScreen> {
           ),
         ),
         Button(
-            title: "NameByIndex",
+            title: 'NameByIndex',
             onPressed: () async {
-              int? index = int.tryParse(_nameOfIndexController.text);
+              final int? index = int.tryParse(_nameOfIndexController.text);
               if (index != null) {
                 final value = await displayManager.getNameByIndex(index);
                 setState(() {
-                  _nameOfIndex = value ?? "";
+                  _nameOfIndex = value ?? '';
                 });
               }
             }),
@@ -273,7 +271,7 @@ class SecondaryScreen extends StatefulWidget {
 }
 
 class _SecondaryScreenState extends State<SecondaryScreen> {
-  String value = "init";
+  String value = 'init';
 
   @override
   Widget build(BuildContext context) {

@@ -3,12 +3,13 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:presentation_displays/display.dart';
-import 'package:presentation_displays/secondary_display.dart';
 
-const _listDisplay = "listDisplay";
-const _showPresentation = "showPresentation";
-const _transferDataToPresentation = "transferDataToPresentation";
+import 'display.dart';
+import 'secondary_display.dart';
+
+const _listDisplay = 'listDisplay';
+const _showPresentation = 'showPresentation';
+const _transferDataToPresentation = 'transferDataToPresentation';
 
 /// Display category: secondary display.
 /// <p>
@@ -26,12 +27,12 @@ const _transferDataToPresentation = "transferDataToPresentation";
 ///
 /// [DisplayManager.getDisplays]
 ///
-const String DISPLAY_CATEGORY_PRESENTATION =
-    "android.hardware.display.category.PRESENTATION";
+const String displayCategoryPresentation =
+    'android.hardware.display.category.PRESENTATION';
 
 /// Provide you with the method for you to work with [SecondaryDisplay].
 class DisplayManager {
-  final _displayChannel = "presentation_displays_plugin";
+  final _displayChannel = 'presentation_displays_plugin';
   MethodChannel? _displayMethodChannel;
 
   DisplayManager() {
@@ -42,7 +43,7 @@ class DisplayManager {
   /// <p>
   /// When there are multiple displays in a category the returned displays are sorted
   /// of preference.  For example, if the requested category is
-  /// [DISPLAY_CATEGORY_PRESENTATION] and there are multiple secondary display
+  /// [displayCategoryPresentation] and there are multiple secondary display
   /// then the displays are sorted so that the first display in the returned array
   /// is the most preferred secondary display.  The application may simply
   /// use the first display or allow the user to choose.
@@ -51,13 +52,13 @@ class DisplayManager {
   /// [category] The requested display category or null to return all displays.
   /// @return An array containing all displays sorted by order of preference.
   ///
-  /// See [DISPLAY_CATEGORY_PRESENTATION]
+  /// See [displayCategoryPresentation]
   FutureOr<List<Display>?> getDisplays({String? category}) async {
-    List<dynamic> origins = await jsonDecode(await _displayMethodChannel
+    final List<dynamic> origins = await jsonDecode(await _displayMethodChannel
             ?.invokeMethod(_listDisplay, category)) ??
         [];
-    List<Display> displays = [];
-    for (var element in origins) {
+    final List<Display> displays = [];
+    for (final element in origins) {
       final map = jsonDecode(jsonEncode(element));
       displays.add(displayFromJson(map));
     }
@@ -68,17 +69,17 @@ class DisplayManager {
   /// <p>
   /// Note that some displays may be renamed by the user.
   /// [category] The requested display category or null to return all displays.
-  /// See [DISPLAY_CATEGORY_PRESENTATION]
+  /// See [displayCategoryPresentation]
   /// </p>
   ///
   /// @return The display's name.
   /// May be null.
   FutureOr<String?> getNameByDisplayId(int displayId,
       {String? category}) async {
-    List<Display> displays = await getDisplays(category: category) ?? [];
+    final List<Display> displays = await getDisplays(category: category) ?? [];
 
     String? name;
-    for (var element in displays) {
+    for (final element in displays) {
       if (element.displayId == displayId) name = element.name;
     }
     return name;
@@ -88,13 +89,13 @@ class DisplayManager {
   /// <p>
   /// Note that some displays may be renamed by the user.
   /// [category] The requested display category or null to return all displays.
-  /// see [DISPLAY_CATEGORY_PRESENTATION]
+  /// see [displayCategoryPresentation]
   /// </p>
   ///
   /// @return The display's name
   /// May be null.
   FutureOr<String?> getNameByIndex(int index, {String? category}) async {
-    List<Display> displays = await getDisplays(category: category) ?? [];
+    final List<Display> displays = await getDisplays(category: category) ?? [];
     String? name;
     if (index >= 0 && index <= displays.length) name = displays[index].name;
     return name;
@@ -113,10 +114,10 @@ class DisplayManager {
       {required int displayId, required String routerName}) {
     return _displayMethodChannel?.invokeMethod<bool?>(
         _showPresentation,
-        "{"
-        "\"displayId\": $displayId,"
-        "\"routerName\": \"$routerName\""
-        "}");
+        '{'
+        '"displayId": $displayId,'
+        '"routerName": "$routerName"'
+        '}');
   }
 
   /// Transfer data to a secondary display
