@@ -7,6 +7,7 @@ import android.os.Handler
 import android.util.Log
 import android.view.Display
 import androidx.annotation.NonNull
+import androidx.core.content.ContextCompat.getSystemService
 import com.google.gson.Gson
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.FlutterEngineCache
@@ -21,8 +22,7 @@ import io.flutter.plugin.common.PluginRegistry
 import org.json.JSONObject
 
 /** PresentationDisplaysPlugin */
-class PresentationDisplaysPlugin() : FlutterPlugin, ActivityAware, MethodChannel.MethodCallHandler {
-
+class PresentationDisplaysPlugin : FlutterPlugin, ActivityAware, MethodChannel.MethodCallHandler {
 
   private lateinit var channel : MethodChannel
   private lateinit var eventChannel : EventChannel
@@ -71,25 +71,31 @@ class PresentationDisplaysPlugin() : FlutterPlugin, ActivityAware, MethodChannel
       "showPresentation" -> {
         try {
           val obj = JSONObject(call.arguments as String)
-          Log.i(TAG, "Channel: method: ${call.method} | displayId: ${obj.getInt("displayId")} | routerName: ${obj.getString("routerName")}")
-
+          Log.i(
+            TAG,
+            "Channel: method: ${call.method} | displayId: ${obj.getInt("displayId")} | routerName: ${
+              obj.getString("routerName")
+            }"
+          )
           val displayId: Int = obj.getInt("displayId")
           val tag: String = obj.getString("routerName")
           val display = displayManager?.getDisplay(displayId)
-          val flutterEngine = createFlutterEngine(tag)
-
           if (display != null) {
+            val flutterEngine = createFlutterEngine(tag)
             flutterEngine?.let {
-              flutterEngineChannel = MethodChannel(it.dartExecutor.binaryMessenger, "${viewTypeId}_engine")
-              presentationDisplay = context?.let { it1 -> PresentationDisplay(it1, tag, display) }
-              presentationDisplay?.show()
+              flutterEngineChannel = MethodChannel(
+                it.dartExecutor.binaryMessenger,
+                "${viewTypeId}_engine"
+              )
+              val presentation =
+                context?.let { it1 -> PresentationDisplay(it1, tag, display) }
+              Log.i(TAG, "presentation: $presentation")
+              presentation?.show()
               result.success(true)
             } ?: result.error("404", "Can't find FlutterEngine", null)
-
           } else {
             result.error("404", "Can't find display with displayId is $displayId", null)
           }
-
         } catch (e: Exception) {
           result.error(call.method, e.message, null)
         }
@@ -107,18 +113,22 @@ class PresentationDisplaysPlugin() : FlutterPlugin, ActivityAware, MethodChannel
         }
       }
       "listDisplay" -> {
-        val gson = Gson()
+        val listJson = ArrayList<DisplayJson>()
         val category = call.arguments
         val displays = displayManager?.getDisplays(category as String?)
-        val listJson = ArrayList<DisplayJson>()
-
-        if (displays!=null) {
+        if (displays != null) {
           for (display: Display in displays) {
-            val d = DisplayJson(display.displayId, display.flags, display.rotation, display.name)
+            Log.i(TAG, "display: $display")
+            val d = DisplayJson(
+              display.displayId,
+              display.flags,
+              display.rotation,
+              display.name
+            )
             listJson.add(d)
           }
-          result.success(gson.toJson(listJson))
         }
+        result.success(Gson().toJson(listJson))
       }
       "transferDataToPresentation" -> {
         try {
@@ -132,8 +142,8 @@ class PresentationDisplaysPlugin() : FlutterPlugin, ActivityAware, MethodChannel
   }
 
   private fun createFlutterEngine(tag: String): FlutterEngine? {
-    if(context == null)
-      return  null
+    if (context == null)
+      return null
     if (FlutterEngineCache.getInstance().get(tag) == null) {
       val flutterEngine = FlutterEngine(context!!)
       flutterEngine.navigationChannel.setInitialRoute(tag)

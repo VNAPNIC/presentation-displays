@@ -1,3 +1,10 @@
+## 0.2.3
+* Fix for "show presentation" wrong index
+
+## 0.2.2
+*gradle updated & and example proguard rule added
+
+
 ## 0.2.1
 * Adding getDisplays, getNameByDisplayId, and getNameByIndex for iOS
 * Allowing the user to select the screen index and routerName for show presentation for iOS

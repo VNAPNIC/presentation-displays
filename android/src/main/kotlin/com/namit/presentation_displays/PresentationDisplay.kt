@@ -10,16 +10,17 @@ import android.widget.FrameLayout
 import io.flutter.embedding.android.FlutterView
 import io.flutter.embedding.engine.FlutterEngineCache
 
-class PresentationDisplay(context: Context, private val tag: String, display: Display) : Presentation(context, display) {
+class PresentationDisplay(context: Context, private val tag: String, display: Display) :
+    Presentation(context, display) {
 
-    /**
-     * @hide
-     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val flContainer = FrameLayout(context)
-        val params = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+        val params = FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        )
         flContainer.layoutParams = params
 
         setContentView(flContainer)
