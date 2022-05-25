@@ -54,7 +54,7 @@ class PresentationDisplaysPlugin : FlutterPlugin, ActivityAware, MethodChannel.M
       channel.setMethodCallHandler(PresentationDisplaysPlugin())
 
       val eventChannel = EventChannel(registrar.messenger(), viewTypeEventsId)
-      displayManager = registrar.activity().getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+      displayManager = registrar.activity()!!.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
       val displayConnectedStreamHandler = DisplayConnectedStreamHandler(displayManager)
       eventChannel.setStreamHandler(displayConnectedStreamHandler)
     }
