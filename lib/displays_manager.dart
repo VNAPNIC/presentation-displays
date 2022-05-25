@@ -61,10 +61,10 @@ class DisplayManager {
             .invokeMethod(_listDisplay, category)) ??
         [];
     List<Display> displays = [];
-    origins.forEach((element) {
+    for (var element in origins) {
       final map = jsonDecode(jsonEncode(element));
       displays.add(displayFromJson(map));
-    });
+    }
     return displays;
   }
 
@@ -77,13 +77,14 @@ class DisplayManager {
   ///
   /// @return The display's name.
   /// May be null.
-  FutureOr<String?> getNameByDisplayId(int displayId, {String? category}) async {
+  FutureOr<String?> getNameByDisplayId(int displayId,
+      {String? category}) async {
     List<Display> displays = await getDisplays(category: category) ?? [];
 
     String? name;
-    displays.forEach((element) {
+    for (var element in displays) {
       if (element.displayId == displayId) name = element.name;
-    });
+    }
     return name;
   }
 
