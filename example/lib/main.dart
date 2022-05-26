@@ -99,6 +99,7 @@ class _DisplayManagerScreenState extends State<DisplayManagerScreen> {
             children: <Widget>[
               _getDisplays(),
               _showPresentation(),
+              _hidePresentation(),
               _transferData(),
               _getDisplayeById(),
               _getDisplayByIndex(),
@@ -165,6 +166,39 @@ class _DisplayManagerScreenState extends State<DisplayManagerScreen> {
                   if (display?.displayId == displayId) {
                     displayManager.showSecondaryDisplay(
                         displayId: displayId, routerName: "presentation");
+                  }
+                }
+              }
+            }),
+        const Divider(),
+      ],
+    );
+  }
+
+  Widget _hidePresentation() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: TextField(
+            controller: _indexToShareController,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Index to hide screen',
+            ),
+          ),
+        ),
+        Button(
+            title: "Hide presentation",
+            onPressed: () async {
+              int? displayId = int.tryParse(_indexToShareController.text);
+              if (displayId != null) {
+                for (final display in displays) {
+                  if (display?.displayId == displayId) {
+                    displayManager.hideSecondaryDisplay(
+                        displayId: displayId);
                   }
                 }
               }
