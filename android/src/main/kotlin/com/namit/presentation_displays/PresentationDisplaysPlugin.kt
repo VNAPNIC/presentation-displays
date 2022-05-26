@@ -4,10 +4,10 @@ import android.content.ContentValues.TAG
 import android.content.Context
 import android.hardware.display.DisplayManager
 import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.Display
 import androidx.annotation.NonNull
-import androidx.core.content.ContextCompat.getSystemService
 import com.google.gson.Gson
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.FlutterEngineCache
@@ -48,6 +48,7 @@ class PresentationDisplaysPlugin : FlutterPlugin, ActivityAware, MethodChannel.M
     /**
      * @hide
      */
+    @Suppress("unused", "DEPRECATION")
     @JvmStatic
     fun registerWith(registrar: PluginRegistry.Registrar) {
       val channel = MethodChannel(registrar.messenger(), viewTypeId)
@@ -174,7 +175,7 @@ class PresentationDisplaysPlugin : FlutterPlugin, ActivityAware, MethodChannel.M
 
 class DisplayConnectedStreamHandler(private var displayManager: DisplayManager?) : EventChannel.StreamHandler {
   private var sink: EventChannel.EventSink? = null
-  var handler: Handler? = null
+  private var handler: Handler? = null
 
   private val displayListener = object : DisplayManager.DisplayListener {
     override fun onDisplayAdded(displayId: Int) {
@@ -190,7 +191,7 @@ class DisplayConnectedStreamHandler(private var displayManager: DisplayManager?)
 
   override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
     sink = events
-    handler = Handler()
+    handler = Handler(Looper.getMainLooper())
     displayManager?.registerDisplayListener(displayListener, handler)
   }
 
