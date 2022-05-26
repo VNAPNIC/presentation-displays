@@ -28,7 +28,7 @@ class PresentationDisplaysPlugin : FlutterPlugin, ActivityAware, MethodChannel.M
   private lateinit var eventChannel : EventChannel
   private var flutterEngineChannel: MethodChannel? = null
   private var context:Context?=null
-  private var presentationDisplay:PresentationDisplay?=null
+  private var presentation:PresentationDisplay?=null
 
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, viewTypeId)
@@ -87,7 +87,7 @@ class PresentationDisplaysPlugin : FlutterPlugin, ActivityAware, MethodChannel.M
                 it.dartExecutor.binaryMessenger,
                 "${viewTypeId}_engine"
               )
-              val presentation =
+              presentation =
                 context?.let { it1 -> PresentationDisplay(it1, tag, display) }
               Log.i(TAG, "presentation: $presentation")
               presentation?.show()
@@ -105,8 +105,8 @@ class PresentationDisplaysPlugin : FlutterPlugin, ActivityAware, MethodChannel.M
           val obj = JSONObject(call.arguments as String)
           Log.i(TAG, "Channel: method: ${call.method} | displayId: ${obj.getInt("displayId")}")
 
-          presentationDisplay?.dismiss()
-          presentationDisplay = null
+          presentation?.dismiss()
+          presentation = null
           result.success(true)
         } catch (e: Exception) {
           result.error(call.method, e.message, null)

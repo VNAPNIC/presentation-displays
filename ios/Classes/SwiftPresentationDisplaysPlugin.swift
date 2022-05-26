@@ -4,7 +4,7 @@ import UIKit
 public class SwiftPresentationDisplaysPlugin: NSObject, FlutterPlugin {
     var additionalWindows = [UIScreen:UIWindow]()
     var screens = [UIScreen]()
-    var flutterEngineChannel:FlutterMethodChannel=FlutterMethodChannel()
+    var flutterEngineChannel:FlutterMethodChannel?=nil
     public static var controllerAdded: ((FlutterViewController)->Void)?
 
     public override init() {
@@ -134,15 +134,16 @@ public class SwiftPresentationDisplaysPlugin: NSObject, FlutterPlugin {
             let screen=self.screens[index]
             let window=self.additionalWindows[screen]
 
-            // You must show the window explicitly.
-            window?.isHidden=false
+            if (window != nil){
+                window!.isHidden=false
+                if (window!.rootViewController == nil || !(window!.rootViewController is FlutterViewController)){
+                    let extVC = FlutterViewController(project: nil, initialRoute: routerName, nibName: nil, bundle: nil)
+                    SwiftPresentationDisplaysPlugin.controllerAdded!(extVC)
+                    window?.rootViewController = extVC
 
-            let extVC = FlutterViewController()
-            SwiftPresentationDisplaysPlugin.controllerAdded!(extVC)
-            extVC.setInitialRoute(routerName)
-            window?.rootViewController = extVC
-
-            self.flutterEngineChannel = FlutterMethodChannel(name: "presentation_displays_plugin_engine", binaryMessenger: extVC.binaryMessenger)
+                    self.flutterEngineChannel = FlutterMethodChannel(name: "presentation_displays_plugin_engine", binaryMessenger: extVC.binaryMessenger)
+                }
+            }
         }
     }
 
@@ -155,7 +156,6 @@ public class SwiftPresentationDisplaysPlugin: NSObject, FlutterPlugin {
 
             window?.isHidden=true
         }
-
     }
 
 }
