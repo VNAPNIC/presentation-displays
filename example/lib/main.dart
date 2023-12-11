@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:presentation_displays/display.dart';
 import 'package:presentation_displays/displays_manager.dart';
+import 'package:presentation_displays/main_display.dart';
 import 'package:presentation_displays/secondary_display.dart';
 
 Route<dynamic> generateRoute(RouteSettings settings) {
@@ -77,24 +78,34 @@ class _DisplayManagerScreenState extends State<DisplayManagerScreen> {
   final TextEditingController _nameOfIndexController = TextEditingController();
   String _nameOfIndex = "";
 
+  dynamic dataFromMain;
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Plugin example app'),
-      ),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              _getDisplays(),
-              _showPresentation(),
-              _transferData(),
-              _getDisplayeById(),
-              _getDisplayByIndex(),
-            ],
+    return MainDisplay(
+      callback: (arguments) {
+        setState(() {
+          dataFromMain = arguments;
+        });
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Plugin example app'),
+        ),
+        body: Center(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                _getDisplays(),
+                _showPresentation(),
+                _transferData(),
+                _dataFromSecond(),
+                _getDisplayeById(),
+                _getDisplayByIndex(),
+              ],
+            ),
           ),
         ),
       ),
@@ -192,6 +203,20 @@ class _DisplayManagerScreenState extends State<DisplayManagerScreen> {
     );
   }
 
+  Widget _dataFromSecond() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text('Data from second: ${dataFromMain ?? '-'}'),
+        ),
+        const Divider(),
+      ],
+    );
+  }
+
   Widget _getDisplayeById() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -274,6 +299,10 @@ class SecondaryScreen extends StatefulWidget {
 
 class _SecondaryScreenState extends State<SecondaryScreen> {
   String value = "init";
+  DisplayManager displayManager = DisplayManager();
+
+  final TextEditingController _dataToTransferController =
+      TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -287,9 +316,51 @@ class _SecondaryScreenState extends State<SecondaryScreen> {
       child: Container(
         color: Colors.white,
         child: Center(
-          child: Text(value),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [_getTransferToMainButton(), _getDataFromMainText()],
+          ),
         ),
       ),
     ));
+  }
+
+  Widget _getTransferToMainButton() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: TextField(
+            controller: _dataToTransferController,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Data',
+            ),
+          ),
+        ),
+        Button(
+            title: "TransferDataToMain",
+            onPressed: () async {
+              displayManager.transferDataToMain(_dataToTransferController.text);
+            }),
+        const Divider(),
+      ],
+    );
+  }
+
+  Widget _getDataFromMainText() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        SizedBox(
+          height: 50,
+          child: Center(child: Text('Data from main: $value')),
+        ),
+        const Divider(),
+      ],
+    );
   }
 }

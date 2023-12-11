@@ -25,11 +25,13 @@ class PresentationDisplaysPlugin : FlutterPlugin, ActivityAware, MethodChannel.M
     private lateinit var channel: MethodChannel
     private var flutterEngineChannel: MethodChannel? = null
     private var displayManager: DisplayManager? = null
+    private var flutterBinding: FlutterPlugin.FlutterPluginBinding? = null
     private var context: Context? = null
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(flutterPluginBinding.flutterEngine.dartExecutor, viewTypeId)
         channel.setMethodCallHandler(this)
+        flutterBinding = flutterPluginBinding;
     }
 
     companion object {
@@ -48,6 +50,7 @@ class PresentationDisplaysPlugin : FlutterPlugin, ActivityAware, MethodChannel.M
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         Log.i(TAG, "Channel: method: ${call.method} | arguments: ${call.arguments}")
+        val channelMainName: String = "main_display_channel"
         when (call.method) {
             "showPresentation" -> {
                 try {
@@ -62,6 +65,16 @@ class PresentationDisplaysPlugin : FlutterPlugin, ActivityAware, MethodChannel.M
                     val tag: String = obj.getString("routerName")
                     val display = displayManager?.getDisplay(displayId)
                     if (display != null) {
+                        var dataToMainCallback: (Any?) -> Unit = {
+                                argument : Any? ->
+                            MethodChannel(
+                                flutterBinding!!.flutterEngine.dartExecutor.binaryMessenger,
+                                channelMainName
+                            ).invokeMethod(
+                                "dataToMain", argument
+                            )
+                        }
+
                         val flutterEngine = createFlutterEngine(tag)
                         flutterEngine?.let {
                             flutterEngineChannel = MethodChannel(
@@ -69,7 +82,7 @@ class PresentationDisplaysPlugin : FlutterPlugin, ActivityAware, MethodChannel.M
                                 "${viewTypeId}_engine"
                             )
                             val presentation =
-                                context?.let { it1 -> PresentationDisplay(it1, tag, display) }
+                                context?.let { it1 -> PresentationDisplay(it1, tag, display, dataToMainCallback) }
                             Log.i(TAG, "presentation: $presentation")
                             presentation?.show()
                             result.success(true)
