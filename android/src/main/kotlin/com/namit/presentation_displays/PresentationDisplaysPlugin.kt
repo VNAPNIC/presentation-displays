@@ -26,6 +26,7 @@ class PresentationDisplaysPlugin : FlutterPlugin, ActivityAware, MethodChannel.M
     private var flutterEngineChannel: MethodChannel? = null
     private var displayManager: DisplayManager? = null
     private var context: Context? = null
+    private var presentation: PresentationDisplay? = null
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(flutterPluginBinding.flutterEngine.dartExecutor, viewTypeId)
@@ -68,7 +69,7 @@ class PresentationDisplaysPlugin : FlutterPlugin, ActivityAware, MethodChannel.M
                                 it.dartExecutor.binaryMessenger,
                                 "${viewTypeId}_engine"
                             )
-                            val presentation =
+                            presentation =
                                 context?.let { it1 -> PresentationDisplay(it1, tag, display) }
                             Log.i(TAG, "presentation: $presentation")
                             presentation?.show()
@@ -106,6 +107,16 @@ class PresentationDisplaysPlugin : FlutterPlugin, ActivityAware, MethodChannel.M
                 } catch (e: Exception) {
                     result.success(false)
                 }
+            }
+            "dismiss" -> {
+                if(presentation != null) {
+                    try {
+                        presentation?.dismiss()
+                        result.success(true)
+                    } catch (e: Exception) {
+                    }
+                }
+                result.success(false)
             }
         }
     }

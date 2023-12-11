@@ -91,6 +91,7 @@ class _DisplayManagerScreenState extends State<DisplayManagerScreen> {
             children: <Widget>[
               _getDisplays(),
               _showPresentation(),
+              _dismissPresentation(),
               _transferData(),
               _getDisplayeById(),
               _getDisplayByIndex(),
@@ -160,6 +161,21 @@ class _DisplayManagerScreenState extends State<DisplayManagerScreen> {
                   }
                 }
               }
+            }),
+        const Divider(),
+      ],
+    );
+  }
+
+  Widget _dismissPresentation() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Button(
+            title: "Dismiss presentation",
+            onPressed: () async {
+              await displayManager.dismissPresentation();
             }),
         const Divider(),
       ],
