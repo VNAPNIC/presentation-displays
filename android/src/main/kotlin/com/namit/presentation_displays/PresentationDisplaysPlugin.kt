@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.Display
 import androidx.annotation.NonNull
 import com.google.gson.Gson
+import io.flutter.FlutterInjector
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.FlutterEngineCache
 import io.flutter.embedding.engine.dart.DartExecutor
@@ -24,30 +25,32 @@ import org.json.JSONObject
 /** PresentationDisplaysPlugin */
 class PresentationDisplaysPlugin : FlutterPlugin, ActivityAware, MethodChannel.MethodCallHandler {
 
-  private lateinit var channel : MethodChannel
-  private lateinit var eventChannel : EventChannel
+  private lateinit var channel: MethodChannel
+  private lateinit var eventChannel: EventChannel
   private var flutterEngineChannel: MethodChannel? = null
-  private var context:Context?=null
-  private var presentation:PresentationDisplay?=null
+  private var context: Context? = null
+  private var presentation: PresentationDisplay? = null
 
-  override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
+  override fun onAttachedToEngine(
+      @NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding
+  ) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, viewTypeId)
     channel.setMethodCallHandler(this)
 
     eventChannel = EventChannel(flutterPluginBinding.binaryMessenger, viewTypeEventsId)
-    displayManager = flutterPluginBinding.applicationContext.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+    displayManager =
+        flutterPluginBinding.applicationContext.getSystemService(Context.DISPLAY_SERVICE) as
+            DisplayManager
     val displayConnectedStreamHandler = DisplayConnectedStreamHandler(displayManager)
     eventChannel.setStreamHandler(displayConnectedStreamHandler)
   }
 
-  companion object{
-   private const val viewTypeId = "presentation_displays_plugin"
-   private const val viewTypeEventsId = "presentation_displays_plugin_events"
-   private var displayManager: DisplayManager? = null
+  companion object {
+    private const val viewTypeId = "presentation_displays_plugin"
+    private const val viewTypeEventsId = "presentation_displays_plugin_events"
+    private var displayManager: DisplayManager? = null
 
-    /**
-     * @hide
-     */
+    /** @hide */
     @Suppress("unused", "DEPRECATION")
     @JvmStatic
     fun registerWith(registrar: PluginRegistry.Registrar) {
@@ -55,7 +58,8 @@ class PresentationDisplaysPlugin : FlutterPlugin, ActivityAware, MethodChannel.M
       channel.setMethodCallHandler(PresentationDisplaysPlugin())
 
       val eventChannel = EventChannel(registrar.messenger(), viewTypeEventsId)
-      displayManager = registrar.activity()!!.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+      displayManager =
+          registrar.activity()!!.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
       val displayConnectedStreamHandler = DisplayConnectedStreamHandler(displayManager)
       eventChannel.setStreamHandler(displayConnectedStreamHandler)
     }
@@ -73,8 +77,8 @@ class PresentationDisplaysPlugin : FlutterPlugin, ActivityAware, MethodChannel.M
         try {
           val obj = JSONObject(call.arguments as String)
           Log.i(
-            TAG,
-            "Channel: method: ${call.method} | displayId: ${obj.getInt("displayId")} | routerName: ${
+              TAG,
+              "Channel: method: ${call.method} | displayId: ${obj.getInt("displayId")} | routerName: ${
               obj.getString("routerName")
             }"
           )
@@ -84,16 +88,15 @@ class PresentationDisplaysPlugin : FlutterPlugin, ActivityAware, MethodChannel.M
           if (display != null) {
             val flutterEngine = createFlutterEngine(tag)
             flutterEngine?.let {
-              flutterEngineChannel = MethodChannel(
-                it.dartExecutor.binaryMessenger,
-                "${viewTypeId}_engine"
-              )
-              presentation =
-                context?.let { it1 -> PresentationDisplay(it1, tag, display) }
+              flutterEngineChannel =
+                  MethodChannel(it.dartExecutor.binaryMessenger, "${viewTypeId}_engine")
+              presentation = context?.let { it1 -> PresentationDisplay(it1, tag, display) }
               Log.i(TAG, "presentation: $presentation")
               presentation?.show()
+
               result.success(true)
-            } ?: result.error("404", "Can't find FlutterEngine", null)
+            }
+                ?: result.error("404", "Can't find FlutterEngine", null)
           } else {
             result.error("404", "Can't find display with displayId is $displayId", null)
           }
@@ -120,12 +123,7 @@ class PresentationDisplaysPlugin : FlutterPlugin, ActivityAware, MethodChannel.M
         if (displays != null) {
           for (display: Display in displays) {
             Log.i(TAG, "display: $display")
-            val d = DisplayJson(
-              display.displayId,
-              display.flags,
-              display.rotation,
-              display.name
-            )
+            val d = DisplayJson(display.displayId, display.flags, display.rotation, display.name)
             listJson.add(d)
           }
         }
@@ -143,14 +141,14 @@ class PresentationDisplaysPlugin : FlutterPlugin, ActivityAware, MethodChannel.M
   }
 
   private fun createFlutterEngine(tag: String): FlutterEngine? {
-    if (context == null)
-      return null
+    if (context == null) return null
     if (FlutterEngineCache.getInstance().get(tag) == null) {
       val flutterEngine = FlutterEngine(context!!)
       flutterEngine.navigationChannel.setInitialRoute(tag)
-      flutterEngine.dartExecutor.executeDartEntrypoint(
-              DartExecutor.DartEntrypoint.createDefault()
-      )
+      FlutterInjector.instance().flutterLoader().startInitialization(context!!)
+      val path = FlutterInjector.instance().flutterLoader().findAppBundlePath()
+      val entrypoint = DartExecutor.DartEntrypoint(path, "secondaryDisplayMain")
+      flutterEngine.dartExecutor.executeDartEntrypoint(entrypoint)
       flutterEngine.lifecycleChannel.appIsResumed()
       // Cache the FlutterEngine to be used by FlutterActivity.
       FlutterEngineCache.getInstance().put(tag, flutterEngine)
@@ -158,36 +156,35 @@ class PresentationDisplaysPlugin : FlutterPlugin, ActivityAware, MethodChannel.M
     return FlutterEngineCache.getInstance().get(tag)
   }
 
-  override fun onDetachedFromActivity() {
-  }
+  override fun onDetachedFromActivity() {}
 
-  override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
-  }
+  override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {}
 
   override fun onAttachedToActivity(binding: ActivityPluginBinding) {
     this.context = binding.activity
     displayManager = context?.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
   }
 
-  override fun onDetachedFromActivityForConfigChanges() {
-  }
+  override fun onDetachedFromActivityForConfigChanges() {}
 }
 
-class DisplayConnectedStreamHandler(private var displayManager: DisplayManager?) : EventChannel.StreamHandler {
+class DisplayConnectedStreamHandler(private var displayManager: DisplayManager?) :
+    EventChannel.StreamHandler {
   private var sink: EventChannel.EventSink? = null
   private var handler: Handler? = null
 
-  private val displayListener = object : DisplayManager.DisplayListener {
-    override fun onDisplayAdded(displayId: Int) {
-      sink?.success(1)
-    }
+  private val displayListener =
+      object : DisplayManager.DisplayListener {
+        override fun onDisplayAdded(displayId: Int) {
+          sink?.success(1)
+        }
 
-    override fun onDisplayRemoved(displayId: Int) {
-      sink?.success(0)
-    }
+        override fun onDisplayRemoved(displayId: Int) {
+          sink?.success(0)
+        }
 
-    override fun onDisplayChanged(p0: Int) {}
-  }
+        override fun onDisplayChanged(p0: Int) {}
+      }
 
   override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
     sink = events

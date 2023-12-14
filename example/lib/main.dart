@@ -19,7 +19,26 @@ Route<dynamic> generateRoute(RouteSettings settings) {
 }
 
 void main() {
+  debugPrint('first main');
   runApp(const MyApp());
+}
+
+@pragma('vm:entry-point')
+void secondaryDisplayMain() {
+  debugPrint('second main');
+  runApp(const MySecondApp());
+}
+
+class MySecondApp extends StatelessWidget {
+  const MySecondApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      onGenerateRoute: generateRoute,
+      initialRoute: 'presentation',
+    );
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -79,9 +98,11 @@ class _DisplayManagerScreenState extends State<DisplayManagerScreen> {
 
   @override
   void initState() {
-    displayManager.connectedDisplaysChangedStream.listen((event) {
-      debugPrint("connected displays changed: $event");
-    },);
+    displayManager.connectedDisplaysChangedStream?.listen(
+      (event) {
+        debugPrint("connected displays changed: $event");
+      },
+    );
     super.initState();
   }
 
@@ -197,8 +218,7 @@ class _DisplayManagerScreenState extends State<DisplayManagerScreen> {
               if (displayId != null) {
                 for (final display in displays) {
                   if (display?.displayId == displayId) {
-                    displayManager.hideSecondaryDisplay(
-                        displayId: displayId);
+                    displayManager.hideSecondaryDisplay(displayId: displayId);
                   }
                 }
               }
@@ -321,7 +341,7 @@ class _SecondaryScreenState extends State<SecondaryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: SecondaryDisplay(
-      callback: (argument) {
+      callback: (dynamic argument) {
         setState(() {
           value = argument;
         });
