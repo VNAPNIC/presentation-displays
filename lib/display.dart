@@ -4,6 +4,13 @@ Display displayFromJson(Map<String, dynamic> json) => Display(
     name: json['name'],
     rotation: json['rotation']);
 
+/// for release please check response from invokeMethod
+Display displayReleaseFromJson(Map<String, dynamic> json) => Display(
+    displayId: json['a'],
+    flag: json['b'],
+    name: json['d'],
+    rotation: json['c']);
+
 /// The default Display id, which is the id of the built-in primary display
 /// assuming there is one.
 const int DEFAULT_DISPLAY = 0;
@@ -110,7 +117,7 @@ class Display {
   /// Each logical display has a unique id.
   /// The default display has id [DEFAULT_DISPLAY]
   /// </p>
-  int displayId = DEFAULT_DISPLAY;
+  int? displayId = DEFAULT_DISPLAY;
 
   /// Returns a combination of flags that describe the capabilities of the display.
   /// @return The display flags.
@@ -138,7 +145,7 @@ class Display {
   /// </p>
   ///
   /// @return The display's name.
-  String name;
+  String? name;
 
   Display(
       {required this.displayId, this.flag, required this.name, this.rotation});

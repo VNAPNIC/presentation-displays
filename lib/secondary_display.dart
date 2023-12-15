@@ -26,7 +26,7 @@ class SecondaryDisplay extends StatefulWidget {
 
 class _SecondaryDisplayState extends State<SecondaryDisplay> {
   final _presentationChannel = "presentation_displays_plugin_engine";
-  MethodChannel? _presentationMethodChannel;
+  late MethodChannel? _presentationMethodChannel;
 
   @override
   void initState() {

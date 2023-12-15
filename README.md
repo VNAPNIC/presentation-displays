@@ -38,6 +38,28 @@ Widget build (BuildContext context) {
     );
 }
 ```
+- wesetup new entry point for secondary display so we can decided what we need to call for initialization. Works only for android for now
+```dart
+@pragma('vm:entry-point')
+void secondaryDisplayMain() {
+ /// do something that don't break plugin registration here.
+}
+```
+### Upgrade version 1.0.0
+
+- Able to package android release build. Works fine in example app.
+
+- Tested example app in android tab and ios tab and things work as expected. Ensure the devices have USB C 3.0 and above else HDMI out is not supported.
+
+- In case of iOS, please refer to example app app delegate. There are few lines of code which needs to be added to your app's app delegate as well for this to work fine in iOS.
+
+- Updated optional issues and null checks
+
+- Added option to hide second display from the first
+
+- WIP support second main in iOS for extended display
+
+- WIP Send data back from 2nd to 1st display
 
 You can take a look at our example to learn more about how the plugin works
 
