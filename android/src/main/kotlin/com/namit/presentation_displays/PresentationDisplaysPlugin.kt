@@ -30,6 +30,7 @@ class PresentationDisplaysPlugin : FlutterPlugin, ActivityAware, MethodChannel.M
   private var flutterEngineChannel: MethodChannel? = null
   private var context: Context? = null
   private var presentation: PresentationDisplay? = null
+  private var flutterBinding: FlutterPlugin.FlutterPluginBinding? = null
 
   override fun onAttachedToEngine(
       @NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding
@@ -43,6 +44,7 @@ class PresentationDisplaysPlugin : FlutterPlugin, ActivityAware, MethodChannel.M
             DisplayManager
     val displayConnectedStreamHandler = DisplayConnectedStreamHandler(displayManager)
     eventChannel.setStreamHandler(displayConnectedStreamHandler)
+      flutterBinding = flutterPluginBinding
   }
 
   companion object {
@@ -72,6 +74,7 @@ class PresentationDisplaysPlugin : FlutterPlugin, ActivityAware, MethodChannel.M
 
   override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
     Log.i(TAG, "Channel: method: ${call.method} | arguments: ${call.arguments}")
+    val channelMainName: String = "main_display_channel"
     when (call.method) {
       "showPresentation" -> {
         try {
@@ -86,11 +89,21 @@ class PresentationDisplaysPlugin : FlutterPlugin, ActivityAware, MethodChannel.M
           val tag: String = obj.getString("routerName")
           val display = displayManager?.getDisplay(displayId)
           if (display != null) {
+              var dataToMainCallback: (Any?) -> Unit = {
+                      argument : Any? ->
+                  MethodChannel(
+                      flutterBinding!!.flutterEngine.dartExecutor.binaryMessenger,
+                      channelMainName
+                  ).invokeMethod(
+                      "dataToMain", argument
+                  )
+              }
+
             val flutterEngine = createFlutterEngine(tag)
             flutterEngine?.let {
               flutterEngineChannel =
                   MethodChannel(it.dartExecutor.binaryMessenger, "${viewTypeId}_engine")
-              presentation = context?.let { it1 -> PresentationDisplay(it1, tag, display) }
+              presentation = context?.let { it1 -> PresentationDisplay(it1, tag, display, dataToMainCallback) }
               Log.i(TAG, "presentation: $presentation")
               presentation?.show()
 

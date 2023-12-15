@@ -5,12 +5,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:presentation_displays/display.dart';
+import 'package:presentation_displays/main_display.dart';
 import 'package:presentation_displays/secondary_display.dart';
 
 const _listDisplay = "listDisplay";
 const _showPresentation = "showPresentation";
 const _hidePresentation = "hidePresentation";
 const _transferDataToPresentation = "transferDataToPresentation";
+const _transferDataToMain = "transferDataToMain";
 
 /// Display category: secondary display.
 /// <p>
@@ -24,6 +26,7 @@ const _transferDataToPresentation = "transferDataToPresentation";
 /// [DisplayManager.getDisplays], [DisplayManager.getNameByDisplayId],
 /// [DisplayManager.getNameByIndex], [DisplayManager.showSecondaryDisplay],
 /// [DisplayManager.transferDataToPresentation], [DisplayManager.hideSecondaryDisplay]
+/// [DisplayManager.transferDataToMain]
 /// </p>
 ///
 /// [DisplayManager.getDisplays]
@@ -31,17 +34,20 @@ const _transferDataToPresentation = "transferDataToPresentation";
 const String DISPLAY_CATEGORY_PRESENTATION =
     "android.hardware.display.category.PRESENTATION";
 
-/// Provide you with the method for you to work with [SecondaryDisplay].
+/// Provide you with the method for you to work with [SecondaryDisplay] and [MainDisplay].
 class DisplayManager {
   final _displayMethodChannelId = "presentation_displays_plugin";
   final _displayEventChannelId = "presentation_displays_plugin_events";
+  final _mainChannel = "main_display_channel";
 
   late MethodChannel? _displayMethodChannel;
   late EventChannel? _displayEventChannel;
+  MethodChannel? _mainMethodChannel;
 
   DisplayManager() {
     _displayMethodChannel = MethodChannel(_displayMethodChannelId);
     _displayEventChannel = EventChannel(_displayEventChannelId);
+    _mainMethodChannel = MethodChannel(_mainChannel);
   }
 
   /// Gets all currently valid logical displays of the specified category.
@@ -201,5 +207,63 @@ class DisplayManager {
   /// Streams [1] for new connected display and [0] for disconnected display
   Stream<int?>? get connectedDisplaysChangedStream {
     return _displayEventChannel?.receiveBroadcastStream().cast();
+  }
+
+  /// Transfer data to a main display
+  /// <p>
+  /// Transfer data from secondary screen to a main display
+  /// Consider using [arguments] for cases where a particular run-time type is expected. Consider using String when that run-time type is Map or JSONObject.
+  /// </p>
+  /// <p>
+  /// Main Screen
+  ///
+  /// ```dart
+  /// class _MainScreenState extends State<MainScreen> {
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///       return MainDisplay(
+  ///        callback: (argument) {
+  ///          Song.fromJson(argument)
+  ///       },
+  ///       child: Center()
+  ///     );
+  ///   }
+  /// }
+  /// ```
+  ///
+  /// ```
+  /// Secondary display
+  ///
+  /// ```dart
+  /// DisplayManager displayManager = DisplayManager();
+  /// ...
+  /// static Future<void> transferData(Song song) async {
+  ///   displayManager.transferDataToMain(<String, dynamic>{
+  ///         'id': song.id,
+  ///         'title': song.title,
+  ///         'artist': song.artist,
+  ///       });
+  /// }
+  /// ```
+  /// Class Song
+  ///
+  /// ```dart
+  /// class Song {
+  ///   Song(this.id, this.title, this.artist);
+  ///
+  ///   final String id;
+  ///   final String title;
+  ///   final String artist;
+  ///
+  ///   static Song fromJson(dynamic json) {
+  ///     return Song(json['id'], json['title'], json['artist']);
+  ///   }
+  /// }
+  /// ```
+  /// </p>
+  ///
+  /// return [Future<bool>] the value to determine whether or not the data has been transferred successfully
+  Future<bool?>? transferDataToMain(dynamic arguments) async {
+    return _mainMethodChannel?.invokeMethod(_transferDataToMain, arguments);
   }
 }
