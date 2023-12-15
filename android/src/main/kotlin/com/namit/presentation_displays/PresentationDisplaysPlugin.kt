@@ -30,7 +30,7 @@ class PresentationDisplaysPlugin : FlutterPlugin, ActivityAware, MethodChannel.M
   private var flutterEngineChannel: MethodChannel? = null
   private var context: Context? = null
   private var presentation: PresentationDisplay? = null
-    private var flutterBinding: FlutterPlugin.FlutterPluginBinding? = null
+  private var flutterBinding: FlutterPlugin.FlutterPluginBinding? = null
 
   override fun onAttachedToEngine(
       @NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding
@@ -74,7 +74,7 @@ class PresentationDisplaysPlugin : FlutterPlugin, ActivityAware, MethodChannel.M
 
   override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
     Log.i(TAG, "Channel: method: ${call.method} | arguments: ${call.arguments}")
-      val channelMainName: String = "main_display_channel"
+    val channelMainName: String = "main_display_channel"
     when (call.method) {
       "showPresentation" -> {
         try {

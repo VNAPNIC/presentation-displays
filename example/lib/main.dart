@@ -129,7 +129,7 @@ class _DisplayManagerScreenState extends State<DisplayManagerScreen> {
               children: <Widget>[
                 _getDisplays(),
                 _showPresentation(),
-                ays
+                _hidePresentation(),
                 _transferData(),
                 _dataFromSecond(),
                 _getDisplayeById(),
