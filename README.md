@@ -45,6 +45,8 @@ void secondaryDisplayMain() {
  /// do something that don't break plugin registration here.
 }
 ```
+### Upgrade version 1.0.0
+
 - Able to package android release build. Works fine in example app.
 
 - Tested example app in android tab and ios tab and things work as expected. Ensure the devices have USB C 3.0 and above else HDMI out is not supported.
