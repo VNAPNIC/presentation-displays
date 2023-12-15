@@ -19,7 +19,26 @@ Route<dynamic> generateRoute(RouteSettings settings) {
 }
 
 void main() {
+  debugPrint('first main');
   runApp(const MyApp());
+}
+
+@pragma('vm:entry-point')
+void secondaryDisplayMain() {
+  debugPrint('second main');
+  runApp(const MySecondApp());
+}
+
+class MySecondApp extends StatelessWidget {
+  const MySecondApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      onGenerateRoute: generateRoute,
+      initialRoute: 'presentation',
+    );
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -78,6 +97,16 @@ class _DisplayManagerScreenState extends State<DisplayManagerScreen> {
   String _nameOfIndex = "";
 
   @override
+  void initState() {
+    displayManager.connectedDisplaysChangedStream?.listen(
+      (event) {
+        debugPrint("connected displays changed: $event");
+      },
+    );
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -91,6 +120,7 @@ class _DisplayManagerScreenState extends State<DisplayManagerScreen> {
             children: <Widget>[
               _getDisplays(),
               _showPresentation(),
+              _hidePresentation(),
               _transferData(),
               _getDisplayeById(),
               _getDisplayByIndex(),
@@ -157,6 +187,38 @@ class _DisplayManagerScreenState extends State<DisplayManagerScreen> {
                   if (display?.displayId == displayId) {
                     displayManager.showSecondaryDisplay(
                         displayId: displayId, routerName: "presentation");
+                  }
+                }
+              }
+            }),
+        const Divider(),
+      ],
+    );
+  }
+
+  Widget _hidePresentation() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: TextField(
+            controller: _indexToShareController,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Index to hide screen',
+            ),
+          ),
+        ),
+        Button(
+            title: "Hide presentation",
+            onPressed: () async {
+              int? displayId = int.tryParse(_indexToShareController.text);
+              if (displayId != null) {
+                for (final display in displays) {
+                  if (display?.displayId == displayId) {
+                    displayManager.hideSecondaryDisplay(displayId: displayId);
                   }
                 }
               }
@@ -279,7 +341,7 @@ class _SecondaryScreenState extends State<SecondaryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: SecondaryDisplay(
-      callback: (argument) {
+      callback: (dynamic argument) {
         setState(() {
           value = argument;
         });
