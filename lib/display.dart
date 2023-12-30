@@ -4,13 +4,6 @@ Display displayFromJson(Map<String, dynamic> json) => Display(
     name: json['name'],
     rotation: json['rotation']);
 
-/// for release please check response from invokeMethod
-Display displayReleaseFromJson(Map<String, dynamic> json) => Display(
-    displayId: json['a'],
-    flag: json['b'],
-    name: json['d'],
-    rotation: json['c']);
-
 /// The default Display id, which is the id of the built-in primary display
 /// assuming there is one.
 const int DEFAULT_DISPLAY = 0;
