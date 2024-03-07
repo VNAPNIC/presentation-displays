@@ -65,9 +65,7 @@ class DisplayManager {
     List<Display> displays = [];
     for (var element in origins) {
       final map = jsonDecode(jsonEncode(element));
-      displays.add(kReleaseMode
-          ? displayReleaseFromJson(map as Map<String, dynamic>)
-          : displayFromJson(map as Map<String, dynamic>));
+      displays.add(displayFromJson(map as Map<String, dynamic>));
     }
     return displays;
   }
